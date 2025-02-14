@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		0492D5022D5E299100A9DEF2 /* TruvideoSdkMedia in Frameworks */ = {isa = PBXBuildFile; productRef = 0492D5012D5E299100A9DEF2 /* TruvideoSdkMedia */; };
 		0C80B921A6F3F58F76C31292 /* libPods-TruvideoReactTurboMediaSdkExample.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 5DCACB8F33CDC322A6C60F78 /* libPods-TruvideoReactTurboMediaSdkExample.a */; };
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
 		761780ED2CA45674006654EE /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 761780EC2CA45674006654EE /* AppDelegate.swift */; };
@@ -32,6 +33,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				0492D5022D5E299100A9DEF2 /* TruvideoSdkMedia in Frameworks */,
 				0C80B921A6F3F58F76C31292 /* libPods-TruvideoReactTurboMediaSdkExample.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -144,6 +146,9 @@
 				Base,
 			);
 			mainGroup = 83CBB9F61A601CBA00E9B192;
+			packageReferences = (
+				0492D5002D5E299100A9DEF2 /* XCRemoteSwiftPackageReference "truvideo-sdk-ios-media" */,
+			);
 			productRefGroup = 83CBBA001A601CBA00E9B192 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -260,7 +265,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = AKRSR3D9R9;
+				DEVELOPMENT_TEAM = "";
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = TruvideoReactTurboMediaSdkExample/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 15.1;
@@ -274,7 +279,7 @@
 					"-ObjC",
 					"-lc++",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.fiveexceptions.roomplan;
+				PRODUCT_BUNDLE_IDENTIFIER = com.truvideo.media;
 				PRODUCT_NAME = TruvideoReactTurboMediaSdkExample;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
@@ -289,7 +294,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = AKRSR3D9R9;
+				DEVELOPMENT_TEAM = "";
 				INFOPLIST_FILE = TruvideoReactTurboMediaSdkExample/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 15.1;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -302,7 +307,7 @@
 					"-ObjC",
 					"-lc++",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.fiveexceptions.roomplan;
+				PRODUCT_BUNDLE_IDENTIFIER = com.truvideo.media;
 				PRODUCT_NAME = TruvideoReactTurboMediaSdkExample;
 				SWIFT_VERSION = 5.0;
 				VERSIONING_SYSTEM = "apple-generic";
@@ -378,10 +383,7 @@
 					"-DFOLLY_CFG_NO_COROUTINES=1",
 					"-DFOLLY_HAVE_CLOCK_GETTIME=1",
 				);
-				OTHER_LDFLAGS = (
-					"$(inherited)",
-					" ",
-				);
+				OTHER_LDFLAGS = "$(inherited)  ";
 				REACT_NATIVE_PATH = "${PODS_ROOT}/../../node_modules/react-native";
 				SDKROOT = iphoneos;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited) DEBUG";
@@ -450,10 +452,7 @@
 					"-DFOLLY_CFG_NO_COROUTINES=1",
 					"-DFOLLY_HAVE_CLOCK_GETTIME=1",
 				);
-				OTHER_LDFLAGS = (
-					"$(inherited)",
-					" ",
-				);
+				OTHER_LDFLAGS = "$(inherited)  ";
 				REACT_NATIVE_PATH = "${PODS_ROOT}/../../node_modules/react-native";
 				SDKROOT = iphoneos;
 				USE_HERMES = true;
@@ -483,6 +482,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		0492D5002D5E299100A9DEF2 /* XCRemoteSwiftPackageReference "truvideo-sdk-ios-media" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/Truvideo/truvideo-sdk-ios-media.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 76.3.1;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		0492D5012D5E299100A9DEF2 /* TruvideoSdkMedia */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 0492D5002D5E299100A9DEF2 /* XCRemoteSwiftPackageReference "truvideo-sdk-ios-media" */;
+			productName = TruvideoSdkMedia;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 83CBB9F71A601CBA00E9B192 /* Project object */;
 }
