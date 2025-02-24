@@ -1,4 +1,5 @@
 #import "TruvideoReactTurboMediaSdk.h"
+#import "truvideo_react_turbo_media_sdk-Swift.h"
 
 @implementation TruvideoReactTurboMediaSdk
 RCT_EXPORT_MODULE()
@@ -10,8 +11,8 @@ RCT_EXPORT_MODULE()
 }
 
 - (void)uploadMedia:(nonnull NSString *)filePath tag:(nonnull NSString *)tag metaData:(nonnull NSString *)metaData resolve:(nonnull RCTPromiseResolveBlock)resolve reject:(nonnull RCTPromiseRejectBlock)reject { 
-  TruvideoReactTurboMediaSdk *truvideo = [[TruvideoReactTurboMediaSdk alloc] init];
-  [truvideo uploadMedia:filePath tag:tag metaData:metaData resolve:resolve reject:reject];
+  TruVideoReactMediaSdkClass *truvideo = [[TruVideoReactMediaSdkClass alloc] init];
+  [truvideo uploadMediaWithFilePath:filePath tag:tag metaData:metaData resolve:resolve reject:reject];
 }
 
 

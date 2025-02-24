@@ -10,12 +10,11 @@ import Combine
 import TruvideoSdkMedia
 import React
 
-@objc(TruVideoReactMediaSdk)
-class TruVideoReactMediaSdk: NSObject {
+
+@objc public class TruVideoReactMediaSdkClass: NSObject {
     private var disposeBag = Set<AnyCancellable>()
     
-    @objc(uploadMedia:withTag:withMetaData:withResolver:withRejecter:)
-    func uploadMedia(filePath: String, tag: String, metaData: String, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
+    @objc public func uploadMedia(filePath: String, tag: String, metaData: String, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
         guard let fileURL = URL(string: "file://\(filePath)") else {
             reject("INVALID_URL", "The file URL is invalid", nil)
             return
