@@ -1,12 +1,18 @@
 import { Text, View, StyleSheet } from 'react-native';
-import { multiply } from 'truvideo-react-turbo-media-sdk';
+import { uploadMedia } from 'truvideo-react-turbo-media-sdk';
 
-const result = multiply(3, 7);
+const result = uploadMedia("filepath", "tag", "metaData")
+.then((res) => {
+    console.log('Upload successful:', res);
+})
+.catch((err) => {
+    console.log('Upload error:', err);
+});
 
 export default function App() {
   return (
     <View style={styles.container}>
-      <Text>Result: {result}</Text>
+      <Text>Result: </Text>
     </View>
   );
 }
