@@ -1,10 +1,3 @@
-//
-//  TruvideoReactTurboMedia.swift
-//  truvideo-react-turbo-media-sdk
-//
-//  Created by mac on 10/02/2025.
-//
-
 import Foundation
 import Combine
 import TruvideoSdkMedia
@@ -34,19 +27,19 @@ import React
         // Convert tag JSON string to dictionary
         let tagDict = try convertToDictionary(from: tag)
         for (key, value) in tagDict {
-            builder.addTag(key, value)
+            builder.addTag(key, "\(value)")
         }
-        
+      
         // Convert metadata JSON string to Metadata type
         let metadataObj = try convertToDictionary(from: metaData)
-        for (key, value) in tagDict {
-            builder.addMetadata(key, value)
+        for (key, value) in metadataObj {
+            builder.addMetadata(key, "\(value)")
         }
         return builder
     }
     
     private func executeUploadRequest(builder: TruvideoSdkMedia.FileUploadRequestBuilder, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) throws {
-        let request = try builder.build()
+        let request =  try builder.build()
         
         // Print the file upload request for debugging
         print("fileUploadRequest: ", request.id.uuidString)
@@ -73,12 +66,14 @@ import React
                 let id = request.id.uuidString
               print("uploadedResult: ", uploadedResult)
                 
+                print("tags: " , tags.dictionary)
+                print("metaData: " , metadataDict.dictionary)
                 // Send completion event
                 let mainResponse: [String: Any] = [
                     "id": id, // Generate a unique ID for the event
                     "uploadedFileURL": uploadedFileURL.absoluteString,
-                    "metaData": metadataDict,
-                    "tags": tags,
+                    "metaData": metadataDict.dictionary,
+                    "tags": tags.dictionary,
                     "transcriptionURL": transcriptionURL,
                     "transcriptionLength": transcriptionLength
                 ]
@@ -108,13 +103,18 @@ import React
         try request.upload()
     }
     
-    private func convertToDictionary(from jsonString: String) throws -> [String: String] {
+    private func convertToDictionary(from jsonString: String) throws -> [String: Any] {
         guard let jsonData = jsonString.data(using: .utf8) else {
             throw NSError(domain: "Invalid JSON string", code: 0, userInfo: nil)
         }
-        
-        return try JSONSerialization.jsonObject(with: jsonData, options: []) as? [String: String] ?? [:]
+
+        guard let jsonObject = try JSONSerialization.jsonObject(with: jsonData, options: []) as? [String: Any] else {
+            throw NSError(domain: "Invalid JSON format", code: 1, userInfo: nil)
+        }
+
+        return jsonObject
     }
+
     
 //    private func convertToMetadata(from jsonString: String) throws -> Metadata {
 //        guard let jsonData = jsonString.data(using: .utf8) else {
