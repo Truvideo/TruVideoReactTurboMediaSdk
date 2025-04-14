@@ -42,18 +42,20 @@ class TruvideoReactTurboMediaSdkModule(reactContext: ReactApplicationContext) :
     // Create a file upload request builder
     val builder = TruvideoSdkMedia.FileUploadRequestBuilder(filePath)
     val jsonTag = JSONObject(tag)
-    builder.addTag("key",jsonTag.getString("key"))
-    builder.addTag("color", jsonTag.getString("color"))
-    builder.addTag("order-number", jsonTag.getString("orderNumber"))
+    var keys = jsonTag.keys()
+    while (keys.hasNext()) {
+      var key = keys.next()
+      var value= jsonTag.getString(key) // Can be any type: String, Integer, Boolean, etc.
+      builder.addTag(key, value)
+    }
     // Metadata
     val jsonMetadata = JSONObject(metaData)
-    Log.d("TAG", "uploadFile: $jsonTag , $jsonMetadata")
-    val metaData = TruvideoSdkMediaMetadata.builder()
-      .set("key",jsonMetadata.getString("key"))
-      .set("key1",jsonMetadata.getString("key1"))
-      .set("nested",jsonMetadata.getString("key2"))
-      .build()
-    builder.setMetadata(metaData)
+    val metadataKeys = jsonMetadata.keys()
+    while (metadataKeys.hasNext()) {
+      val key = metadataKeys.next()
+      val value = jsonMetadata.getString(key) // Can be any type: String, Integer, Boolean, etc.
+      builder.addMetadata(key, value)
+    }
 
     // Build the request
     val request = builder.build()
