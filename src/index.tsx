@@ -18,7 +18,7 @@ export interface MediaData {
 
 export interface UploadProgressEvent {
   id: string;
-  progress: number;
+  progress: string;
 }
 
 export interface UploadCompleteEventData {

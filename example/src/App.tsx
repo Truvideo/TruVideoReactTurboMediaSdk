@@ -7,7 +7,7 @@ result.setMetaData('key', 'value');
 var request = await result.build();
 
 const uploadCallbacks = {
-  onProgress: (event: { id: string; progress: number }) => {
+  onProgress: (event: { id: string; progress: string }) => {
     console.log(event);
   },
   onComplete: (event: any) => {
