@@ -10,11 +10,11 @@ export interface Spec extends TurboModule {
   ): Promise<string>;
   getFileUploadRequestById(id: string): Promise<string>;
   getAllFileUploadRequests(status: string): Promise<string>;
-  cancel(id: string): Promise<string>;
-  delete(id: string): Promise<string>;
-  pause(id: string): Promise<string>;
-  resume(id: string): Promise<string>;
-  upload(id: string): Promise<string>;
+  cancelMedia(id: string): Promise<string>;
+  deleteMedia(id: string): Promise<string>;
+  pauseMedia(id: string): Promise<string>;
+  resumeMedia(id: string): Promise<string>;
+  uploadMedia(id: string): Promise<string>;
   search(
     tag: string,
     type: string,

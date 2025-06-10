@@ -70,7 +70,7 @@ class TruvideoReactTurboMediaSdkModule(reactContext: ReactApplicationContext) :
     }
   }
 
-  override fun cancel(id: String?, promise: Promise?) {
+  override fun cancelMedia(id: String?, promise: Promise?) {
     scope.launch {
       val request = TruvideoSdkMedia.getFileUploadRequestById(id!!)
       request!!.cancel()
@@ -78,7 +78,7 @@ class TruvideoReactTurboMediaSdkModule(reactContext: ReactApplicationContext) :
     }
   }
 
-  override fun delete(id: String?, promise: Promise?) {
+  override fun deleteMedia(id: String?, promise: Promise?) {
     scope.launch {
       val request = TruvideoSdkMedia.getFileUploadRequestById(id!!)
       request!!.delete()
@@ -86,7 +86,7 @@ class TruvideoReactTurboMediaSdkModule(reactContext: ReactApplicationContext) :
     }
   }
 
-  override fun pause(id: String?, promise: Promise?) {
+  override fun pauseMedia(id: String?, promise: Promise?) {
     scope.launch {
       val request = TruvideoSdkMedia.getFileUploadRequestById(id!!)
       request!!.pause()
@@ -94,7 +94,7 @@ class TruvideoReactTurboMediaSdkModule(reactContext: ReactApplicationContext) :
     }
   }
 
-  override fun resume(id: String?, promise: Promise?) {
+  override fun resumeMedia(id: String?, promise: Promise?) {
     scope.launch {
       val request = TruvideoSdkMedia.getFileUploadRequestById(id!!)
       request!!.resume()
@@ -186,7 +186,7 @@ class TruvideoReactTurboMediaSdkModule(reactContext: ReactApplicationContext) :
     promise.resolve(mainResponse)
   }
 
-  override fun upload(id: String,promise: Promise){
+  override fun uploadMedia(id: String,promise: Promise){
     scope.launch {
       val gson = Gson()
       val request = TruvideoSdkMedia.getFileUploadRequestById(id)

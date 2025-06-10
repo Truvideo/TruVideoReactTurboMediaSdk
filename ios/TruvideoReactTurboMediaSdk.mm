@@ -10,15 +10,15 @@ RCT_EXPORT_MODULE()
     return result;
 }
 
-- (void)cancel:(nonnull NSString *)id resolve:(nonnull RCTPromiseResolveBlock)resolve reject:(nonnull RCTPromiseRejectBlock)reject { 
+- (void)cancelMedia:(nonnull NSString *)id resolve:(nonnull RCTPromiseResolveBlock)resolve reject:(nonnull RCTPromiseRejectBlock)reject {
   TruVideoReactMediaSdkClass *truvideo = [[TruVideoReactMediaSdkClass alloc] init];
-  [truvideo cancelWithId:id resolve:resolve reject:reject];
+  [truvideo cancelMediaWithId:id resolve:resolve reject:reject];
 }
 
 
-- (void)delete:(nonnull NSString *)id resolve:(nonnull RCTPromiseResolveBlock)resolve reject:(nonnull RCTPromiseRejectBlock)reject { 
+- (void)deleteMedia:(nonnull NSString *)id resolve:(nonnull RCTPromiseResolveBlock)resolve reject:(nonnull RCTPromiseRejectBlock)reject {
   TruVideoReactMediaSdkClass *truvideo = [[TruVideoReactMediaSdkClass alloc] init];
-  [truvideo deleteWithId:id resolve:resolve reject:reject];
+  [truvideo deleteMediaWithId:id resolve:resolve reject:reject];
 }
 
 
@@ -40,15 +40,15 @@ RCT_EXPORT_MODULE()
 }
 
 
-- (void)pause:(nonnull NSString *)id resolve:(nonnull RCTPromiseResolveBlock)resolve reject:(nonnull RCTPromiseRejectBlock)reject { 
+- (void)pauseMedia:(nonnull NSString *)id resolve:(nonnull RCTPromiseResolveBlock)resolve reject:(nonnull RCTPromiseRejectBlock)reject {
   TruVideoReactMediaSdkClass *truvideo = [[TruVideoReactMediaSdkClass alloc] init];
-  [truvideo pauseWithId:id resolve:resolve reject:reject];
+  [truvideo pauseMediaWithId:id resolve:resolve reject:reject];
 }
 
 
-- (void)resume:(nonnull NSString *)id resolve:(nonnull RCTPromiseResolveBlock)resolve reject:(nonnull RCTPromiseRejectBlock)reject { 
+- (void)resumeMedia:(nonnull NSString *)id resolve:(nonnull RCTPromiseResolveBlock)resolve reject:(nonnull RCTPromiseRejectBlock)reject {
   TruVideoReactMediaSdkClass *truvideo = [[TruVideoReactMediaSdkClass alloc] init];
-  [truvideo resumeWithId:id resolve:resolve reject:reject];
+  [truvideo resumeMediaWithId:id resolve:resolve reject:reject];
 }
 
 
@@ -58,9 +58,9 @@ RCT_EXPORT_MODULE()
 }
 
 
-- (void)upload:(nonnull NSString *)id resolve:(nonnull RCTPromiseResolveBlock)resolve reject:(nonnull RCTPromiseRejectBlock)reject { 
+- (void)uploadMedia:(nonnull NSString *)id resolve:(nonnull RCTPromiseResolveBlock)resolve reject:(nonnull RCTPromiseRejectBlock)reject {
   TruVideoReactMediaSdkClass *truvideo = [[TruVideoReactMediaSdkClass alloc] init];
-  [truvideo uploadWithId:id resolve:resolve reject:reject];
+  [truvideo uploadMediaWithId:id resolve:resolve reject:reject];
 }
 
 

@@ -125,22 +125,22 @@ import React
     //TruvideoSdkMedia.FileUploadRequestBuilder(fileURL: fileURL)
   }
 
-  @objc public func cancel(id: String, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock){
+  @objc public func cancelMedia(id: String, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock){
     let request = try? TruvideoSdkMedia.getFileUploadRequest(withId : id)
     try? request?.cancel()
   }
   
-  @objc public func delete(id: String, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock){
+  @objc public func deleteMedia(id: String, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock){
     let request = try? TruvideoSdkMedia.getFileUploadRequest(withId : id)
     try? request?.delete()
   }
   
-  @objc public func pause(id: String, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock){
+  @objc public func pauseMedia(id: String, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock){
     let request = try? TruvideoSdkMedia.getFileUploadRequest(withId : id)
     try? request?.pause()
   }
   
-  @objc public func resume(id: String, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock){
+  @objc public func resumeMedia(id: String, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock){
     let request = try? TruvideoSdkMedia.getFileUploadRequest(withId : id)
     try? request?.resume()
   }
@@ -159,7 +159,7 @@ import React
   }
   
   
-  @objc public func upload(id: String, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock){
+  @objc public func uploadMedia(id: String, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock){
     let request = try? TruvideoSdkMedia.getFileUploadRequest(withId : id)
     
     // Print the file upload request for debugging

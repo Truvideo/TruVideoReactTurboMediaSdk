@@ -147,7 +147,7 @@ export class MediaBuilder {
         new Error('Cannot cancel: mediaDetail is undefined.')
       );
     }
-    return TruvideoReactTurboMediaSdk.cancel(this.mediaDetail.id);
+    return TruvideoReactTurboMediaSdk.cancelMedia(this.mediaDetail.id);
   }
   delete(): Promise<string> {
     if (this.mediaDetail === undefined) {
@@ -155,7 +155,7 @@ export class MediaBuilder {
         new Error('Cannot delete: mediaDetail is undefined.')
       );
     }
-    return TruvideoReactTurboMediaSdk.delete(this.mediaDetail.id);
+    return TruvideoReactTurboMediaSdk.deleteMedia(this.mediaDetail.id);
   }
   pause(): Promise<string> {
     if (this.mediaDetail === undefined) {
@@ -163,7 +163,7 @@ export class MediaBuilder {
         new Error('Cannot pause: mediaDetail is undefined.')
       );
     }
-    return TruvideoReactTurboMediaSdk.pause(this.mediaDetail.id);
+    return TruvideoReactTurboMediaSdk.pauseMedia(this.mediaDetail.id);
   }
   resume(): Promise<string> {
     if (this.mediaDetail === undefined) {
@@ -171,7 +171,7 @@ export class MediaBuilder {
         new Error('Cannot resume: mediaDetail is undefined.')
       );
     }
-    return TruvideoReactTurboMediaSdk.resume(this.mediaDetail.id);
+    return TruvideoReactTurboMediaSdk.resumeMedia(this.mediaDetail.id);
   }
   upload(callbacks: UploadCallbacks): Promise<string> {
     if (this.mediaDetail === undefined) {
@@ -222,7 +222,7 @@ export class MediaBuilder {
         this.removeEventListeners();
       })
     );
-    return TruvideoReactTurboMediaSdk.upload(this.mediaDetail.id);
+    return TruvideoReactTurboMediaSdk.uploadMedia(this.mediaDetail.id);
   }
 
   removeEventListeners(): void {
