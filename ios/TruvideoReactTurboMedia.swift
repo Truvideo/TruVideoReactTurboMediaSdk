@@ -17,20 +17,27 @@ import React
             let builder = try createFileUploadRequestBuilder(fileURL: fileURL, tag: tag, metaData: metaData)
           var request = try builder.build()
           
-          let mainResponse: [String: Any] = [
-            "id": request.id, // Generate a unique ID for the event
+          let mainResponse: [String: String] = [
+            "id": request.id.uuidString, // Generate a unique ID for the event
             "filePath": request.filePath,
-            "fileType": request.fileType,
-            "durationMilliseconds": request.durationMilliseconds ?? "",
+            "fileType": request.fileType.rawValue,
+            "durationMilliseconds":  "\(String(describing: request.durationMilliseconds))",
             "remoteId" : request.remoteId ?? "",
-            "remoteURL" : request.remoteURL ?? "",
+            "remoteURL" : request.remoteURL?.absoluteString ?? "",
             "transcriptionURL" : request.transcriptionURL ?? "",
-            "transcriptionLength" : request.transcriptionLenght ?? "",
-            "status" : request.status,
-            "progress" : request.uploadProgress
+            "transcriptionLength" : "\(String(describing: request.transcriptionLength))" ,
+            "status" : "\(request.status.rawValue)",
+            "progress" : "\(request.uploadProgress)"
           ]
-          
-          resolve(mainResponse)
+          let jsonData = try JSONSerialization.data(withJSONObject: mainResponse, options: [])
+
+            if let jsonString = String(data: jsonData, encoding: .utf8) {
+                    print("mainResponse as JSON string: \(jsonString)")
+                    resolve(jsonString) // Or wherever you need to use this JSON string
+                } else {
+                    print("Error: Could not convert JSON data to string.")
+                    // Handle error: e.g., reject(error)
+                }
             //try executeUploadRequest(builder: builder, resolve: resolve, reject: reject)
         } catch {
             reject("UPLOAD_ERROR", "Upload failed", error)
@@ -120,29 +127,59 @@ import React
     }
   
   @objc public func getFileUploadRequestById(id: String, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock){
-    let result =  try? TruvideoSdkMedia.getFileUploadRequest(withId : id)
-    print(result ?? "")
+    do {
+      let request =  try TruvideoSdkMedia.getFileUploadRequest(withId : id)
+      let mainResponse: [String: String] = [
+        "id": request.id.uuidString, // Generate a unique ID for the event
+        "filePath": request.filePath,
+        "fileType": request.fileType.rawValue,
+        "durationMilliseconds":  "\(String(describing: request.durationMilliseconds))",
+        "remoteId" : request.remoteId ?? "",
+        "remoteURL" : request.remoteURL?.absoluteString ?? "",
+        "transcriptionURL" : request.transcriptionURL ?? "",
+        "transcriptionLength" : "\(String(describing: request.transcriptionLength))" ,
+        "status" : "\(request.status.rawValue)",
+        "progress" : "\(request.uploadProgress)"
+      ]
+      let jsonData = try JSONSerialization.data(withJSONObject: mainResponse, options: [])
+
+        if let jsonString = String(data: jsonData, encoding: .utf8) {
+                print("mainResponse as JSON string: \(jsonString)")
+                resolve(jsonString) // Or wherever you need to use this JSON string
+            } else {
+                print("Error: Could not convert JSON data to string.")
+                // Handle error: e.g., reject(error)
+            }
+        //try executeUploadRequest(builder: builder, resolve: resolve, reject: reject)
+    } catch {
+        resolve("{}")
+    }
+    
     //TruvideoSdkMedia.FileUploadRequestBuilder(fileURL: fileURL)
   }
 
   @objc public func cancelMedia(id: String, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock){
     let request = try? TruvideoSdkMedia.getFileUploadRequest(withId : id)
     try? request?.cancel()
+    resolve("Cancel Success")
   }
   
   @objc public func deleteMedia(id: String, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock){
     let request = try? TruvideoSdkMedia.getFileUploadRequest(withId : id)
     try? request?.delete()
+    resolve("Delete Success")
   }
   
   @objc public func pauseMedia(id: String, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock){
     let request = try? TruvideoSdkMedia.getFileUploadRequest(withId : id)
     try? request?.pause()
+    resolve("Pause Success")
   }
   
   @objc public func resumeMedia(id: String, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock){
     let request = try? TruvideoSdkMedia.getFileUploadRequest(withId : id)
     try? request?.resume()
+    resolve("Resume Success")
   }
   
   @objc public func search(tag: String,type : String,page : String,pageSize : String, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock){
@@ -154,6 +191,42 @@ import React
     }
     Task{
       let request = try? await TruvideoSdkMedia.search(type: nil, tags: tagBuild.build(), pageNumber: Int(page) ?? 0, size: Int(pageSize) ?? 0)
+      var mediaList: [TruvideoSDKMedia]? = request?.content
+      if(mediaList == nil){
+        resolve("[]")
+      }else{
+        var list = [String]()
+        let dateFormatter = ISO8601DateFormatter()
+        for media in mediaList! {
+          let tagJsonData = try JSONSerialization.data(withJSONObject: media.tags.dictionary, options: [])
+          if let tagJsonString = String(data: tagJsonData, encoding: .utf8) {
+            let mediaDict: [String: String] = [
+              "id": media.remoteId,
+              "createdDate":dateFormatter.string(from: media.createdDate),
+              "remoteId": media.remoteId,
+              "uploadedFileURL": media.uploadedFileURL.absoluteString,
+              "metaData": try self.convertToJsonString(from : media.metadata.dictionary),  // must return [String: Any]
+              "tags": tagJsonString,          // must return [String: Any]
+              "transcriptionURL": media.transcriptionURL?.absoluteString ?? "",
+              "transcriptionLength": "\(media.transcriptionLength)",
+              "fileType": media.type.rawValue
+            ]
+            let jsonData = try JSONSerialization.data(withJSONObject: mediaDict, options: [])
+            if let jsonString = String(data: jsonData, encoding: .utf8) {
+              list.append(jsonString)
+            }
+          }
+        }
+        let jsonData = try JSONSerialization.data(withJSONObject: list, options: [])
+        if let jsonString = String(data: jsonData, encoding: .utf8) {
+          resolve(jsonString)
+        }else{
+          reject("ERROR","JSON_ERROR",nil)
+        }
+        
+      }
+      
+      
     }
     //try? request?.resume()
   }
@@ -190,21 +263,44 @@ import React
             print("tags: " , tags.dictionary)
             print("metaData: " , metadataDict.dictionary)
             // Send completion event
-            let mainResponse: [String: Any] = [
-                "id": id ?? "", // Generate a unique ID for the event
-                "createdDate" : uploadedResult.createdDate,
-                "remoteId" : uploadedResult.remoteId,
-                "uploadedFileURL": uploadedFileURL.absoluteString,
-                "metaData": metadataDict.dictionary,
-                "tags": tags.dictionary,
-                "transcriptionURL": transcriptionURL ?? "",
-                "transcriptionLength": transcriptionLength,
-                "fileType" : uploadedResult.type.rawValue
-            ]
+            let dateFormatter = ISO8601DateFormatter()
             
-            // resolve
-            resolve(["status": mainResponse])
-            self.sendEvent(withName: "onComplete", body: mainResponse)
+          
+          do {
+            let tagJsonData = try JSONSerialization.data(withJSONObject: tags.dictionary, options: [])
+            if let tagJsonString = String(data: tagJsonData, encoding: .utf8) {
+              let mainResponse: [String: String] = [
+                  "id": id ?? "", // Generate a unique ID for the event
+                  "createdDate" : dateFormatter.string(from: uploadedResult.createdDate),
+                  "remoteId" : uploadedResult.remoteId,
+                  "uploadedFileURL": uploadedFileURL.absoluteString,
+                  "metaData": try self.convertToJsonString(from : metadataDict.dictionary),
+                  "tags":  tagJsonString,
+                  "transcriptionURL": transcriptionURL?.absoluteString ?? "",
+                  "transcriptionLength": "\(transcriptionLength)",
+                  "fileType" : uploadedResult.type.rawValue
+              ]
+              let jsonData = try JSONSerialization.data(withJSONObject: mainResponse, options: [])
+
+                if let jsonString = String(data: jsonData, encoding: .utf8) {
+                        print("mainResponse as JSON string: \(jsonString)")
+                        resolve(jsonString) // Or wherever you need to use this JSON string
+    
+                  self.sendEvent(withName: "onComplete", body: mainResponse)
+                    } else {
+                      
+                        print("Error: Could not convert JSON data to string.")
+                      reject("INVALID_JSON", "Error: Could not convert JSON data to string", nil)
+                        // Handle error: e.g., reject(error)
+                    }
+            }else {
+              reject("INVALID_JSON", "Error: Could not convert JSON data to string", nil)
+            }
+            
+          }catch{
+            reject("INVALID_JSON", "Error: Could not convert JSON data to string", nil)
+          }
+            
         })
     
     // Store the completion handler in the dispose bag to avoid premature deallocation
@@ -238,6 +334,16 @@ import React
 
         return jsonObject
     }
+
+  private func convertToJsonString(from dictionary: [String: Any]) throws -> String {
+      let jsonData = try JSONSerialization.data(withJSONObject: dictionary, options: [])
+      
+      guard let jsonString = String(data: jsonData, encoding: .utf8) else {
+          throw NSError(domain: "Unable to encode JSON string", code: 2, userInfo: nil)
+      }
+      
+      return jsonString
+  }
 
     
 //    private func convertToMetadata(from jsonString: String) throws -> Metadata {

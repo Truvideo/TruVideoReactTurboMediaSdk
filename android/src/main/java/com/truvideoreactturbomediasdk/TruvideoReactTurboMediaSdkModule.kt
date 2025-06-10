@@ -44,8 +44,31 @@ class TruvideoReactTurboMediaSdkModule(reactContext: ReactApplicationContext) :
   override fun getFileUploadRequestById(id: String?, promise: Promise?) {
     scope.launch {
       val request = TruvideoSdkMedia.getFileUploadRequestById(id!!)
-      promise!!.resolve(request)
+      if(request == null){
+        promise!!.resolve("{}")
+      }else{
+        var mainResponse = returnRequest(request)
+        promise!!.resolve(mainResponse)
+      }
+
     }
+  }
+
+  fun returnRequest(request : TruvideoSdkMediaFileUploadRequest) : String{
+    return Gson().toJson(
+      mapOf<String, Any?>(
+        "id" to request.id, // Generate a unique ID for the event
+        "filePath" to request.filePath,
+        "fileType" to request.type,
+        "durationMilliseconds" to request.durationMilliseconds ,
+        "remoteId" to request.remoteId ,
+        "remoteURL" to request.remoteUrl,
+        "transcriptionURL" to request.transcriptionUrl,
+        "transcriptionLength" to request.transcriptionLength ,
+        "status" to request.status,
+        "progress" to request.uploadProgress
+      )
+    )
   }
 
   override fun getAllFileUploadRequests(status: String?, promise: Promise?) {
@@ -74,7 +97,7 @@ class TruvideoReactTurboMediaSdkModule(reactContext: ReactApplicationContext) :
     scope.launch {
       val request = TruvideoSdkMedia.getFileUploadRequestById(id!!)
       request!!.cancel()
-      promise!!.resolve(request)
+      promise!!.resolve("Cancel Success")
     }
   }
 
@@ -82,7 +105,7 @@ class TruvideoReactTurboMediaSdkModule(reactContext: ReactApplicationContext) :
     scope.launch {
       val request = TruvideoSdkMedia.getFileUploadRequestById(id!!)
       request!!.delete()
-      promise!!.resolve(request)
+      promise!!.resolve("Delete Success")
     }
   }
 
@@ -90,7 +113,7 @@ class TruvideoReactTurboMediaSdkModule(reactContext: ReactApplicationContext) :
     scope.launch {
       val request = TruvideoSdkMedia.getFileUploadRequestById(id!!)
       request!!.pause()
-      promise!!.resolve(request)
+      promise!!.resolve("Pause Success")
     }
   }
 
@@ -98,7 +121,7 @@ class TruvideoReactTurboMediaSdkModule(reactContext: ReactApplicationContext) :
     scope.launch {
       val request = TruvideoSdkMedia.getFileUploadRequestById(id!!)
       request!!.resume()
-      promise!!.resolve(request)
+      promise!!.resolve("Resume Success")
     }
   }
 
@@ -141,7 +164,25 @@ class TruvideoReactTurboMediaSdkModule(reactContext: ReactApplicationContext) :
         pageNumber = page!!.toInt(),
         pageSize = pageSize!!.toInt()
       )
-      promise!!.resolve(response)
+      val gson = Gson()
+      val list = ArrayList<String>()
+      response.data.forEach {
+        var mainResponse = gson.toJson(
+          mapOf<String, Any?>(
+            "id" to it.id, // Generate a unique ID for the event
+            "createdDate" to it.createdDate,
+            "remoteId" to it.id,
+            "uploadedFileURL" to it.url,
+            "metaData" to it.metadata.toJson(),
+            "tags" to it.tags.toJson(),
+            "transcriptionURL" to it.transcriptionUrl,
+            "transcriptionLength" to  it.transcriptionLength,
+            "fileType" to it.type.name
+          )
+        )
+        list.add(mainResponse)
+      }
+      promise!!.resolve(gson.toJson(list))
     }
   }
 
@@ -166,22 +207,7 @@ class TruvideoReactTurboMediaSdkModule(reactContext: ReactApplicationContext) :
     }
     // Build the request
     val request = builder.build()
-    val gson = Gson()
-    var mainResponse = gson.toJson(
-      mapOf<String, Any?>(
-          "id" to request.id, // Generate a unique ID for the event
-          "filePath" to request.filePath,
-          "fileType" to request.type,
-          "durationMilliseconds" to request.durationMilliseconds ,
-          "remoteId" to request.remoteId ,
-          "remoteURL" to request.remoteUrl,
-          "transcriptionURL" to request.transcriptionUrl,
-          "transcriptionLength" to request.transcriptionLength ,
-          "status" to request.status,
-          "progress" to request.uploadProgress
-      )
-    )
-
+    var mainResponse = returnRequest(request)
     // Upload the file
     promise.resolve(mainResponse)
   }
