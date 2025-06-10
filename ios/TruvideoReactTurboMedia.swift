@@ -286,7 +286,7 @@ import React
                         print("mainResponse as JSON string: \(jsonString)")
                         resolve(jsonString) // Or wherever you need to use this JSON string
     
-                  self.sendEvent(withName: "onComplete", body: mainResponse)
+                  self.sendEvent(withName: "onComplete", body: jsonString)
                     } else {
                       
                         print("Error: Could not convert JSON data to string.")
@@ -314,7 +314,14 @@ import React
                 "id": UUID().uuidString, // Generate a unique ID for the event
                 "progress": String(format: " %.2f %", progress.percentage * 100)
             ]
-            self.sendEvent(withName: "onProgress", body: mainResponse)
+          do{
+            let jsonData = try JSONSerialization.data(withJSONObject: mainResponse, options: [])
+            if let jsonString = String(data: jsonData, encoding: .utf8) {
+              self.sendEvent(withName: "onProgress", body: jsonString)
+            }
+          }catch{
+            
+          }
         })
     
     // Store the progress handler in the dispose bag to avoid premature deallocation
@@ -409,7 +416,7 @@ import React
   //  }
     
     // Function to send events to React Native
-    private func sendEvent(withName name: String, body: [String: Any]) {
+    private func sendEvent(withName name: String, body: String) {
         guard let bridge = RCTBridge.current() else { return }
         bridge.eventDispatcher().sendAppEvent(withName: name, body: body)
     }
