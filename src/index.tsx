@@ -16,12 +16,12 @@ export interface MediaData {
   // Add other properties as per your mapOf keys
 }
 
-interface UploadProgressEvent {
+export interface UploadProgressEvent {
   id: string;
   progress: number;
 }
 
-interface UploadCompleteEventData {
+export interface UploadCompleteEventData {
   id: string;
   createdDate?: string;
   remoteId?: string;
@@ -33,7 +33,7 @@ interface UploadCompleteEventData {
   fileType?: string;
 }
 
-interface UploadErrorEvent {
+export interface UploadErrorEvent {
   id: string;
   error: any;
 }
