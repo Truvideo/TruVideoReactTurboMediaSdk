@@ -14,54 +14,43 @@ npm install https://github.com/Truvideo/TruVideoReactTurboMediaSdk.git
 
 
 ```js
-import { uploadMedia } from 'truvideo-react-turbo-media-sdk';
+import { MediaBuilder } from 'truvideo-react-turbo-media-sdk';
 
 // ...
-  // setup listener for upload function
-  const eventEmitter = new NativeEventEmitter(
-      NativeModules.TruVideoReactMediaSdk
-    );
 
-    const onUploadProgress = eventEmitter.addListener('onProgress', (event) => {
-      console.log('onProgress event:', event);
-    });
+// init builder
+const result = new MediaBuilder("filepath")
+// setTag
+result.setTag("key","value")
+// setMetaData
+result.setMetaData("key","value")
+// buiild request
+var request = await result.build()
 
-    const onUploadError = eventEmitter.addListener('onError', (event) => {
-      console.log('onError event:', event);
-    });
+// handle callbacks
+const uploadCallbacks = {
+        onProgress: (event: { id: string; progress: number }) => {
 
-    const onUploadComplete = eventEmitter.addListener('onComplete', (event) => {
-      console.log('onComplete event:', event);
-    });
-    // set tag and metadata
-    const [tag, setTag] = React.useState<any>(undefined);
-    const [metaData, setMetaData] = React.useState<any>(undefined);
-    setTag({
-            key: "value",
-            color: "red",
-            orderNumber: "123"
-        });
-    setMetaData({
-            key: "value",
-            key1: 1,
-            key2: [4, 5, 6]
-        });
+        },
+        onComplete: (event: any) => { // Use 'any' or proper type for parsed data
 
+        },
+        onError: (event: { id: string; error: any }) => {
 
-   // call upload function
-   uploadMedia(filePath, tag, metaData)
-                    .then((res) => {
-                        console.log('Upload successful:', res);
-                    })
-                    .catch((err) => {
-                        console.log('Upload error:', err);
-                    })
-     // remove listner
-     return () => {
-      onUploadProgress.remove();
-      onUploadError.remove();
-      onUploadComplete.remove();
-    };
+        },
+  };
+
+// get upload url
+var upload = await request.upload(uploadCallbacks)
+
+// pause
+await request.pause(uploadCallbacks)
+
+// resume
+await request.resume(uploadCallbacks)
+
+// delete
+await request.delete(uploadCallbacks)
 ```
 
 

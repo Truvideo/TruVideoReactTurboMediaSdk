@@ -7,7 +7,7 @@ import React
 @objc public class TruVideoReactMediaSdkClass: NSObject {
     private var disposeBag = Set<AnyCancellable>()
     
-    @objc public func uploadMedia(filePath: String, tag: String, metaData: String, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
+    @objc public func mediaBuilder(filePath: String, tag: String, metaData: String, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
         guard let fileURL = URL(string: "file://\(filePath)") else {
             reject("INVALID_URL", "The file URL is invalid", nil)
             return
@@ -15,7 +15,23 @@ import React
 
         do {
             let builder = try createFileUploadRequestBuilder(fileURL: fileURL, tag: tag, metaData: metaData)
-            try executeUploadRequest(builder: builder, resolve: resolve, reject: reject)
+          var request = try builder.build()
+          
+          let mainResponse: [String: Any] = [
+            "id": request.id, // Generate a unique ID for the event
+            "filePath": request.filePath,
+            "fileType": request.fileType,
+            "durationMilliseconds": request.durationMilliseconds ?? "",
+            "remoteId" : request.remoteId ?? "",
+            "remoteURL" : request.remoteURL ?? "",
+            "transcriptionURL" : request.transcriptionURL ?? "",
+            "transcriptionLength" : request.transcriptionLenght ?? "",
+            "status" : request.status,
+            "progress" : request.uploadProgress
+          ]
+          
+          resolve(mainResponse)
+            //try executeUploadRequest(builder: builder, resolve: resolve, reject: reject)
         } catch {
             reject("UPLOAD_ERROR", "Upload failed", error)
         }
@@ -102,6 +118,114 @@ import React
         
         try request.upload()
     }
+  
+  @objc public func getFileUploadRequestById(id: String, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock){
+    let result =  try? TruvideoSdkMedia.getFileUploadRequest(withId : id)
+    print(result ?? "")
+    //TruvideoSdkMedia.FileUploadRequestBuilder(fileURL: fileURL)
+  }
+
+  @objc public func cancel(id: String, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock){
+    let request = try? TruvideoSdkMedia.getFileUploadRequest(withId : id)
+    try? request?.cancel()
+  }
+  
+  @objc public func delete(id: String, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock){
+    let request = try? TruvideoSdkMedia.getFileUploadRequest(withId : id)
+    try? request?.delete()
+  }
+  
+  @objc public func pause(id: String, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock){
+    let request = try? TruvideoSdkMedia.getFileUploadRequest(withId : id)
+    try? request?.pause()
+  }
+  
+  @objc public func resume(id: String, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock){
+    let request = try? TruvideoSdkMedia.getFileUploadRequest(withId : id)
+    try? request?.resume()
+  }
+  
+  @objc public func search(tag: String,type : String,page : String,pageSize : String, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock){
+    
+    let tagDict = try? convertToDictionary(from: tag)
+    var tagBuild = TruvideoSdkMediaTags.builder()
+    for (key, value) in tagDict! {
+      tagBuild.set(key, "\(value)")
+    }
+    Task{
+      let request = try? await TruvideoSdkMedia.search(type: nil, tags: tagBuild.build(), pageNumber: Int(page) ?? 0, size: Int(pageSize) ?? 0)
+    }
+    //try? request?.resume()
+  }
+  
+  
+  @objc public func upload(id: String, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock){
+    let request = try? TruvideoSdkMedia.getFileUploadRequest(withId : id)
+    
+    // Print the file upload request for debugging
+    //print("fileUploadRequest: ", request.id.uuidString)
+    
+    // Completion of request
+    let completeCancellable = request?.completionHandler
+        .receive(on: DispatchQueue.main)
+        .sink(receiveCompletion: { receiveCompletion in
+            switch receiveCompletion {
+            case .finished:
+                print("Upload finished")
+            case .failure(let error):
+                // Print any errors that occur during the upload process
+                print("Upload failure:", error)
+                reject("UPLOAD_ERROR", "Upload failed", error)
+            }
+        }, receiveValue: { uploadedResult in
+            // Upon successful upload, retrieve the uploaded file URL
+            let uploadedFileURL = uploadedResult.uploadedFileURL
+            let metadataDict = uploadedResult.metadata
+            let tags = uploadedResult.tags
+            let transcriptionURL = uploadedResult.transcriptionURL
+            let transcriptionLength = uploadedResult.transcriptionLength
+            let id = request?.id.uuidString
+          print("uploadedResult: ", uploadedResult)
+            
+            print("tags: " , tags.dictionary)
+            print("metaData: " , metadataDict.dictionary)
+            // Send completion event
+            let mainResponse: [String: Any] = [
+                "id": id ?? "", // Generate a unique ID for the event
+                "createdDate" : uploadedResult.createdDate,
+                "remoteId" : uploadedResult.remoteId,
+                "uploadedFileURL": uploadedFileURL.absoluteString,
+                "metaData": metadataDict.dictionary,
+                "tags": tags.dictionary,
+                "transcriptionURL": transcriptionURL ?? "",
+                "transcriptionLength": transcriptionLength,
+                "fileType" : uploadedResult.type.rawValue
+            ]
+            
+            // resolve
+            resolve(["status": mainResponse])
+            self.sendEvent(withName: "onComplete", body: mainResponse)
+        })
+    
+    // Store the completion handler in the dispose bag to avoid premature deallocation
+    completeCancellable?.store(in: &disposeBag)
+    
+    // Progress of request
+    let progress = request?.progressHandler
+        .receive(on: DispatchQueue.main)
+        .sink(receiveValue: { progress in
+            let mainResponse: [String: Any] = [
+                "id": UUID().uuidString, // Generate a unique ID for the event
+                "progress": String(format: " %.2f %", progress.percentage * 100)
+            ]
+            self.sendEvent(withName: "onProgress", body: mainResponse)
+        })
+    
+    // Store the progress handler in the dispose bag to avoid premature deallocation
+    progress?.store(in: &disposeBag)
+    
+    try? request?.upload()
+  }
     
     private func convertToDictionary(from jsonString: String) throws -> [String: Any] {
         guard let jsonData = jsonString.data(using: .utf8) else {
