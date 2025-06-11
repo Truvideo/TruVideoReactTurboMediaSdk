@@ -103,7 +103,7 @@ import React
                 
                 // resolve
                 resolve(["status": mainResponse])
-                self.sendEvent(withName: "onComplete", body: mainResponse)
+              //self.sendEvent(withName: "onComplete", body: mainResponse)
             })
         
         // Store the completion handler in the dispose bag to avoid premature deallocation
@@ -117,7 +117,7 @@ import React
                     "id": UUID().uuidString, // Generate a unique ID for the event
                     "progress": String(format: " %.2f %", progress.percentage * 100)
                 ]
-                self.sendEvent(withName: "onProgress", body: mainResponse)
+                //self.sendEvent(withName: "onProgress", body: mainResponse)
             })
         
         // Store the progress handler in the dispose bag to avoid premature deallocation
@@ -310,17 +310,19 @@ import React
     let progress = request?.progressHandler
         .receive(on: DispatchQueue.main)
         .sink(receiveValue: { progress in
-            let mainResponse: [String: Any] = [
-                "id": UUID().uuidString, // Generate a unique ID for the event
+            let mainResponse: [String: String] = [
+                "id": id, // Generate a unique ID for the event
                 "progress": String(format: " %.2f %", progress.percentage * 100)
             ]
           do{
             let jsonData = try JSONSerialization.data(withJSONObject: mainResponse, options: [])
             if let jsonString = String(data: jsonData, encoding: .utf8) {
               self.sendEvent(withName: "onProgress", body: jsonString)
+            }else{
+              self.sendEvent(withName: "onProgress", body: "Unable to Parse JSON")
             }
           }catch{
-            
+            self.sendEvent(withName: "onProgress", body: "Unable to Parse JSON")
           }
         })
     
