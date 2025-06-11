@@ -14,34 +14,40 @@ npm install https://github.com/Truvideo/TruVideoReactTurboMediaSdk.git
 
 
 ```js
-import { MediaBuilder } from 'truvideo-react-turbo-media-sdk';
+import { MediaBuilder,UploadProgressEvent,UploadCompleteEventData,UploadErrorEvent } from 'truvideo-react-turbo-media-sdk';
 
 // ...
 
 // init builder
-const result = new MediaBuilder("filepath")
+const result = new MediaBuilder(item.filePath)
 // setTag
-result.setTag("key","value")
+result.setTag("key","value");
+result.setTag("color","red");
+result.setTag("orderNumber","123");
 // setMetaData
-result.setMetaData("key","value")
+result.setMetaData("key","value");
+result.setMetaData("key1","1");
+result.setMetaData("key2","[4,5,6]");
 // buiild request
+console.log(' successful: set data');
 var request = await result.build()
-
+console.log(' successful: set build');
 // handle callbacks
 const uploadCallbacks = {
-        onProgress: (event: { id: string; progress: number }) => {
-
+        onProgress: (event: UploadProgressEvent) => {
+            console.log(`ID: ${event.id}, Progress: ${event.progress}%`)
         },
-        onComplete: (event: any) => { // Use 'any' or proper type for parsed data
-
+        onComplete: (event: UploadCompleteEventData) => { // Use 'any' or proper type for parsed data
+            console.log(`ID: ${event.id}, Type: ${event.fileType}`)
         },
-        onError: (event: { id: string; error: any }) => {
-
+        onError: (event: UploadErrorEvent ) => {
+            console.log(`ID: ${event.id}, Error: ${event.error}`)
         },
-  };
+};
 
-// get upload url
-var upload = await request.upload(uploadCallbacks)
+//const result = await uploadMedia(item.filePath, JSON.stringify(tag), JSON.stringify(metaData));
+var res = await request.upload(uploadCallbacks)
+console.log(' successful: set upload');
 
 // pause
 await request.pause(uploadCallbacks)
