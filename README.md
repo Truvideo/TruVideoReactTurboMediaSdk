@@ -14,54 +14,49 @@ npm install https://github.com/Truvideo/TruVideoReactTurboMediaSdk.git
 
 
 ```js
-import { uploadMedia } from 'truvideo-react-turbo-media-sdk';
+import { MediaBuilder,UploadProgressEvent,UploadCompleteEventData,UploadErrorEvent } from 'truvideo-react-turbo-media-sdk';
 
 // ...
-  // setup listener for upload function
-  const eventEmitter = new NativeEventEmitter(
-      NativeModules.TruVideoReactMediaSdk
-    );
 
-    const onUploadProgress = eventEmitter.addListener('onProgress', (event) => {
-      console.log('onProgress event:', event);
-    });
+// init builder
+const result = new MediaBuilder(item.filePath)
+// setTag
+result.setTag("key","value");
+result.setTag("color","red");
+result.setTag("orderNumber","123");
+// setMetaData
+result.setMetaData("key","value");
+result.setMetaData("key1","1");
+result.setMetaData("key2","[4,5,6]");
+// buiild request
+console.log(' successful: set data');
+var request = await result.build()
+console.log(' successful: set build');
+// handle callbacks
+const uploadCallbacks = {
+        onProgress: (event: UploadProgressEvent) => {
+            console.log(`ID: ${event.id}, Progress: ${event.progress}%`)
+        },
+        onComplete: (event: UploadCompleteEventData) => { // Use 'any' or proper type for parsed data
+            console.log(`ID: ${event.id}, Type: ${event.fileType}`)
+        },
+        onError: (event: UploadErrorEvent ) => {
+            console.log(`ID: ${event.id}, Error: ${event.error}`)
+        },
+};
 
-    const onUploadError = eventEmitter.addListener('onError', (event) => {
-      console.log('onError event:', event);
-    });
+//const result = await uploadMedia(item.filePath, JSON.stringify(tag), JSON.stringify(metaData));
+var res = await request.upload(uploadCallbacks)
+console.log(' successful: set upload');
 
-    const onUploadComplete = eventEmitter.addListener('onComplete', (event) => {
-      console.log('onComplete event:', event);
-    });
-    // set tag and metadata
-    const [tag, setTag] = React.useState<any>(undefined);
-    const [metaData, setMetaData] = React.useState<any>(undefined);
-    setTag({
-            key: "value",
-            color: "red",
-            orderNumber: "123"
-        });
-    setMetaData({
-            key: "value",
-            key1: 1,
-            key2: [4, 5, 6]
-        });
+// pause
+await request.pause(uploadCallbacks)
 
+// resume
+await request.resume(uploadCallbacks)
 
-   // call upload function
-   uploadMedia(filePath, tag, metaData)
-                    .then((res) => {
-                        console.log('Upload successful:', res);
-                    })
-                    .catch((err) => {
-                        console.log('Upload error:', err);
-                    })
-     // remove listner
-     return () => {
-      onUploadProgress.remove();
-      onUploadError.remove();
-      onUploadComplete.remove();
-    };
+// delete
+await request.delete(uploadCallbacks)
 ```
 
 
