@@ -26,8 +26,8 @@ export interface UploadCompleteEventData {
   createdDate?: string;
   remoteId?: string;
   uploadedFileURL?: string;
-  metaData?: any; // Change to 'any' or a specific type after JSON.parse
-  tags?: any;
+  metaData?: string; // Change to 'any' or a specific type after JSON.parse
+  tags?: string;
   transcriptionURL?: string;
   transcriptionLength?: number;
   fileType?: string;
