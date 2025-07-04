@@ -130,7 +130,7 @@ export class MediaBuilder {
   async build(): Promise<MediaBuilder> {
     const jsonObjectTag = this.mapToJsonObject(this._tag);
     const tag = JSON.stringify(jsonObjectTag);
-    const jsonObjectMetadata = this.mapToJsonObject(this._tag);
+    const jsonObjectMetadata = this.mapToJsonObject(this._metaData);
     const metaData = JSON.stringify(jsonObjectMetadata);
     const response = await TruvideoReactTurboMediaSdk.mediaBuilder(
       this._filePath,
