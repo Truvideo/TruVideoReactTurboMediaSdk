@@ -26,8 +26,8 @@ export interface UploadCompleteEventData {
   createdDate?: string;
   remoteId?: string;
   uploadedFileURL?: string;
-  metaData?: any; // Change to 'any' or a specific type after JSON.parse
-  tags?: any;
+  metaData?: string; // Change to 'any' or a specific type after JSON.parse
+  tags?: string;
   transcriptionURL?: string;
   transcriptionLength?: number;
   fileType?: string;
@@ -130,7 +130,7 @@ export class MediaBuilder {
   async build(): Promise<MediaBuilder> {
     const jsonObjectTag = this.mapToJsonObject(this._tag);
     const tag = JSON.stringify(jsonObjectTag);
-    const jsonObjectMetadata = this.mapToJsonObject(this._tag);
+    const jsonObjectMetadata = this.mapToJsonObject(this._metaData);
     const metaData = JSON.stringify(jsonObjectMetadata);
     const response = await TruvideoReactTurboMediaSdk.mediaBuilder(
       this._filePath,
