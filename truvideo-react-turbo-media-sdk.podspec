@@ -16,8 +16,11 @@ Pod::Spec.new do |s|
 
   s.source_files = "ios/**/*.{h,m,mm,cpp,swift}"
   s.private_header_files = "ios/**/*.h"
-  s.vendored_frameworks = ['ios/xcframeworks/TruvideoSdkMedia.xcframework']
-  s.static_framework = true
+#  s.static_framework = false
+ s.vendored_frameworks = ['ios/xcframeworks/TruvideoSdkMedia.xcframework']
+
+  # s.dependency "truvideo-sdk-media"
+
   # Use install_modules_dependencies helper to install the dependencies if React Native version >=0.71.0.
   # See https://github.com/facebook/react-native/blob/febf6b7f33fdb4904669f99d795eba4c0f95d7bf/scripts/cocoapods/new_architecture.rb#L79.
   if respond_to?(:install_modules_dependencies, true)
