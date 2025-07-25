@@ -111,8 +111,9 @@ dependencies {
   //noinspection GradleDynamicVersion
   implementation "com.facebook.react:react-native:+"
   implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
+  implementation 'org.jetbrains.kotlinx:kotlinx-serialization-json:1.9.0'
   implementation 'com.github.Truvideo:truvideo-sdk-android-media:76.3.2'
-  implementation 'com.google.code.gson:gson:2.10.1'
+  //implementation 'com.google.code.gson:gson:2.10.1'
 }
 
 if (isNewArchitectureEnabled()) {

@@ -149,6 +149,7 @@ export class MediaBuilder {
     }
     return TruvideoReactTurboMediaSdk.cancelMedia(this.mediaDetail.id);
   }
+
   delete(): Promise<string> {
     if (this.mediaDetail === undefined) {
       return Promise.reject(
@@ -157,6 +158,7 @@ export class MediaBuilder {
     }
     return TruvideoReactTurboMediaSdk.deleteMedia(this.mediaDetail.id);
   }
+
   pause(): Promise<string> {
     if (this.mediaDetail === undefined) {
       return Promise.reject(
@@ -165,6 +167,7 @@ export class MediaBuilder {
     }
     return TruvideoReactTurboMediaSdk.pauseMedia(this.mediaDetail.id);
   }
+
   resume(): Promise<string> {
     if (this.mediaDetail === undefined) {
       return Promise.reject(
@@ -173,6 +176,7 @@ export class MediaBuilder {
     }
     return TruvideoReactTurboMediaSdk.resumeMedia(this.mediaDetail.id);
   }
+  
   upload(callbacks: UploadCallbacks): Promise<string> {
     if (this.mediaDetail === undefined) {
       return Promise.reject(

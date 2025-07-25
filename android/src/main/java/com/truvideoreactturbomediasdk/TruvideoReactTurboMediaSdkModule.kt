@@ -6,7 +6,6 @@ import com.facebook.react.bridge.Promise
 import com.facebook.react.bridge.ReactApplicationContext
 import com.facebook.react.module.annotations.ReactModule
 import com.facebook.react.modules.core.DeviceEventManagerModule
-import com.google.gson.Gson
 import com.truvideo.sdk.media.TruvideoSdkMedia
 import com.truvideo.sdk.media.interfaces.TruvideoSdkMediaCallback
 import com.truvideo.sdk.media.interfaces.TruvideoSdkMediaFileUploadCallback
@@ -18,6 +17,7 @@ import com.truvideo.sdk.media.model.TruvideoSdkMediaTags
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.serialization.json.Json
 import org.json.JSONObject
 import truvideo.sdk.common.exceptions.TruvideoSdkException
 
@@ -62,20 +62,18 @@ class TruvideoReactTurboMediaSdkModule(reactContext: ReactApplicationContext) :
   }
 
   fun returnRequest(request : TruvideoSdkMediaFileUploadRequest) : String{
-    return Gson().toJson(
-      mapOf<String, Any?>(
-        "id" to request.id, // Generate a unique ID for the event
-        "filePath" to request.filePath,
-        "fileType" to request.type,
-        "durationMilliseconds" to request.durationMilliseconds ,
-        "remoteId" to request.remoteId ,
-        "remoteURL" to request.remoteUrl,
-        "transcriptionURL" to request.transcriptionUrl,
-        "transcriptionLength" to request.transcriptionLength ,
-        "status" to request.status,
-        "progress" to request.uploadProgress
-      )
-    )
+    return Json.encodeToString(mapOf<String, Any?>(
+      "id" to request.id, // Generate a unique ID for the event
+      "filePath" to request.filePath,
+      "fileType" to request.type,
+      "durationMilliseconds" to request.durationMilliseconds ,
+      "remoteId" to request.remoteId ,
+      "remoteURL" to request.remoteUrl,
+      "transcriptionURL" to request.transcriptionUrl,
+      "transcriptionLength" to request.transcriptionLength ,
+      "status" to request.status,
+      "progress" to request.uploadProgress
+    ))
   }
 
   override fun getAllFileUploadRequests(status: String?, promise: Promise?) {
@@ -192,10 +190,10 @@ class TruvideoReactTurboMediaSdkModule(reactContext: ReactApplicationContext) :
           pageNumber = page!!.toInt(),
           pageSize = pageSize!!.toInt()
         )
-        val gson = Gson()
+
         val list = ArrayList<String>()
         response.data.forEach {
-          var mainResponse = gson.toJson(
+          var mainResponse = Json.encodeToString(
             mapOf<String, Any?>(
               "id" to it.id, // Generate a unique ID for the event
               "createdDate" to it.createdDate,
@@ -210,7 +208,7 @@ class TruvideoReactTurboMediaSdkModule(reactContext: ReactApplicationContext) :
           )
           list.add(mainResponse)
         }
-        promise!!.resolve(gson.toJson(list))
+        promise!!.resolve(Json.encodeToString(list))
       }
     }catch (e: Exception){
       promise!!.reject("Exception",e.message)
@@ -250,7 +248,6 @@ class TruvideoReactTurboMediaSdkModule(reactContext: ReactApplicationContext) :
   override fun uploadMedia(id: String,promise: Promise){
     try{
       scope.launch {
-        val gson = Gson()
         val request = TruvideoSdkMedia.getFileUploadRequestById(id)
         request!!.upload(object : TruvideoSdkMediaFileUploadCallback {
           override fun onComplete(id: String, response: TruvideoSdkMediaFileUploadRequest) {
@@ -271,8 +268,8 @@ class TruvideoReactTurboMediaSdkModule(reactContext: ReactApplicationContext) :
               "transcriptionLength" to  response.transcriptionLength,
               "fileType" to response.type.name
             )
-            promise.resolve(gson.toJson(mainResponse))
-            sendEvent(reactApplicationContext,"onComplete",gson.toJson(mainResponse))
+            promise.resolve(Json.encodeToString(mainResponse))
+            sendEvent(reactApplicationContext,"onComplete",Json.encodeToString(mainResponse))
           }
 
           override fun onProgressChanged(id: String, progress: Float) {
@@ -281,7 +278,7 @@ class TruvideoReactTurboMediaSdkModule(reactContext: ReactApplicationContext) :
               "id" to id,
               "progress" to (progress*100)
             )
-            sendEvent(reactApplicationContext,"onProgress",gson.toJson(mainResponse))
+            sendEvent(reactApplicationContext,"onProgress",Json.encodeToString(mainResponse))
           }
 
           override fun onError(id: String, ex: TruvideoSdkException) {
@@ -290,8 +287,8 @@ class TruvideoReactTurboMediaSdkModule(reactContext: ReactApplicationContext) :
               "id" to id,
               "error" to ex
             )
-            promise.resolve(gson.toJson(mainResponse))
-            sendEvent(reactApplicationContext,"onError",gson.toJson(mainResponse))
+            promise.resolve(Json.encodeToString(mainResponse))
+            sendEvent(reactApplicationContext,"onError",Json.encodeToString(mainResponse))
           }
         })
       }
