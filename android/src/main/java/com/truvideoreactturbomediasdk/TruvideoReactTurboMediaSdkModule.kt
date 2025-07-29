@@ -184,7 +184,7 @@ class TruvideoReactTurboMediaSdkModule(reactContext: ReactApplicationContext) :
             TruvideoSdkMediaFileType.Picture
           }
         }
-        val jsonTag = JSONObject(tag)
+        val jsonTag = JSONObject(tag!!)
         val map = mutableMapOf<String, String>()
         val keys = jsonTag.keys()
         while (keys.hasNext()) {
