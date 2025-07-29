@@ -64,7 +64,7 @@ class TruvideoReactTurboMediaSdkModule(reactContext: ReactApplicationContext) :
   }
 
   fun returnRequest(request : TruvideoSdkMediaFileUploadRequest) : String{
-    val mainResponse = mapOf<String, Any?>(
+    val mainResponse = mapOf<String, String?>(
       "id" to request.id, // Generate a unique ID for the event
       "filePath" to request.filePath,
       "fileType" to request.type,
@@ -201,7 +201,7 @@ class TruvideoReactTurboMediaSdkModule(reactContext: ReactApplicationContext) :
 
         val list = ArrayList<String>()
         response.data.forEach {
-          var mainResponse = mapOf<String, Any?>(
+          var mainResponse = mapOf<String, String?>(
               "id" to it.id, // Generate a unique ID for the event
               "createdDate" to it.createdDate,
               "remoteId" to it.id,
@@ -268,7 +268,7 @@ class TruvideoReactTurboMediaSdkModule(reactContext: ReactApplicationContext) :
 //          "response" to response
 //        )
 
-            val mainResponse = mapOf<String, Any?>(
+            val mainResponse = mapOf<String, String?>(
               "id" to id, // Generate a unique ID for the event
               "createdDate" to response.createdAt,
               "remoteId" to response.remoteId,
@@ -289,7 +289,7 @@ class TruvideoReactTurboMediaSdkModule(reactContext: ReactApplicationContext) :
 
           override fun onProgressChanged(id: String, progress: Float) {
             // Handle progress
-            val mainResponse = mapOf<String, Any?>(
+            val mainResponse = mapOf<String, String?>(
               "id" to id,
               "progress" to (progress*100)
             )
@@ -302,7 +302,7 @@ class TruvideoReactTurboMediaSdkModule(reactContext: ReactApplicationContext) :
 
           override fun onError(id: String, ex: TruvideoSdkException) {
             // Handle error
-            val mainResponse = mapOf<String, Any?>(
+            val mainResponse = mapOf<String, String?>(
               "id" to id,
               "error" to ex
             )
