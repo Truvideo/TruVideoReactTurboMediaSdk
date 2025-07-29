@@ -20,6 +20,8 @@ import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
 import org.json.JSONObject
 import truvideo.sdk.common.exceptions.TruvideoSdkException
+import kotlinx.serialization.builtins.*
+import kotlinx.serialization.json.*
 
 @ReactModule(name = TruvideoReactTurboMediaSdkModule.NAME)
 class TruvideoReactTurboMediaSdkModule(reactContext: ReactApplicationContext) :
@@ -62,18 +64,24 @@ class TruvideoReactTurboMediaSdkModule(reactContext: ReactApplicationContext) :
   }
 
   fun returnRequest(request : TruvideoSdkMediaFileUploadRequest) : String{
-    return Json.encodeToString(mapOf<String, Any?>(
+    val mainResponse = mapOf<String, String?>(
       "id" to request.id, // Generate a unique ID for the event
       "filePath" to request.filePath,
-      "fileType" to request.type,
-      "durationMilliseconds" to request.durationMilliseconds ,
+      "fileType" to request.type.toString(),
+      "durationMilliseconds" to request.durationMilliseconds.toString() ,
       "remoteId" to request.remoteId ,
       "remoteURL" to request.remoteUrl,
       "transcriptionURL" to request.transcriptionUrl,
-      "transcriptionLength" to request.transcriptionLength ,
-      "status" to request.status,
-      "progress" to request.uploadProgress
-    ))
+      "transcriptionLength" to request.transcriptionLength.toString() ,
+      "status" to request.status.toString(),
+      "progress" to request.uploadProgress.toString()
+    )
+
+    return Json.encodeToString(
+      MapSerializer(String.serializer(), JsonElement.serializer()),
+      mainResponse.mapValues { Json.encodeToJsonElement(it.value) }
+    )
+
   }
 
   override fun getAllFileUploadRequests(status: String?, promise: Promise?) {
@@ -176,7 +184,7 @@ class TruvideoReactTurboMediaSdkModule(reactContext: ReactApplicationContext) :
             TruvideoSdkMediaFileType.Picture
           }
         }
-        val jsonTag = JSONObject(tag)
+        val jsonTag = JSONObject(tag!!)
         val map = mutableMapOf<String, String>()
         val keys = jsonTag.keys()
         while (keys.hasNext()) {
@@ -193,22 +201,25 @@ class TruvideoReactTurboMediaSdkModule(reactContext: ReactApplicationContext) :
 
         val list = ArrayList<String>()
         response.data.forEach {
-          var mainResponse = Json.encodeToString(
-            mapOf<String, Any?>(
-              "id" to it.id, // Generate a unique ID for the event
-              "createdDate" to it.createdDate,
-              "remoteId" to it.id,
-              "uploadedFileURL" to it.url,
-              "metaData" to it.metadata.toJson(),
-              "tags" to it.tags.toJson(),
-              "transcriptionURL" to it.transcriptionUrl,
-              "transcriptionLength" to  it.transcriptionLength,
-              "fileType" to it.type.name
-            )
+          var mainResponse = mapOf<String, String?>(
+            "id" to it.id, // Generate a unique ID for the event
+            "createdDate" to it.createdDate.toString(),
+            "remoteId" to it.id,
+            "uploadedFileURL" to it.url,
+            "metaData" to it.metadata.toJson(),
+            "tags" to it.tags.toJson(),
+            "transcriptionURL" to it.transcriptionUrl,
+            "transcriptionLength" to  it.transcriptionLength.toString(),
+            "fileType" to it.type.name
           )
-          list.add(mainResponse)
+
+          val jsonString = Json.encodeToString(
+            MapSerializer(String.serializer(), JsonElement.serializer()),
+            mainResponse.mapValues { Json.encodeToJsonElement(it.value) }
+          )
+          list.add(jsonString)
         }
-        promise!!.resolve(Json.encodeToString(list))
+        promise!!.resolve(Json.encodeToString(ListSerializer(String.serializer()), list))
       }
     }catch (e: Exception){
       promise!!.reject("Exception",e.message)
@@ -257,38 +268,50 @@ class TruvideoReactTurboMediaSdkModule(reactContext: ReactApplicationContext) :
 //          "response" to response
 //        )
 
-            val mainResponse = mapOf<String, Any?>(
+            val mainResponse = mapOf<String, String?>(
               "id" to id, // Generate a unique ID for the event
-              "createdDate" to response.createdAt,
+              "createdDate" to response.createdAt.toString(),
               "remoteId" to response.remoteId,
               "uploadedFileURL" to response.remoteUrl,
               "metaData" to response.metadata.toJson(),
               "tags" to response.tags.toJson(),
               "transcriptionURL" to response.transcriptionUrl,
-              "transcriptionLength" to  response.transcriptionLength,
+              "transcriptionLength" to  response.transcriptionLength.toString(),
               "fileType" to response.type.name
             )
-            promise.resolve(Json.encodeToString(mainResponse))
-            sendEvent(reactApplicationContext,"onComplete",Json.encodeToString(mainResponse))
+            val jsonString = Json.encodeToString(
+              MapSerializer(String.serializer(), JsonElement.serializer()),
+              mainResponse.mapValues { Json.encodeToJsonElement(it.value) }
+            )
+            promise.resolve(jsonString)
+            sendEvent(reactApplicationContext,"onComplete",jsonString)
           }
 
           override fun onProgressChanged(id: String, progress: Float) {
             // Handle progress
-            val mainResponse = mapOf<String, Any?>(
+            val mainResponse = mapOf<String, String?>(
               "id" to id,
-              "progress" to (progress*100)
+              "progress" to (progress*100).toString()
             )
-            sendEvent(reactApplicationContext,"onProgress",Json.encodeToString(mainResponse))
+            val jsonString = Json.encodeToString(
+              MapSerializer(String.serializer(), JsonElement.serializer()),
+              mainResponse.mapValues { Json.encodeToJsonElement(it.value) }
+            )
+            sendEvent(reactApplicationContext,"onProgress",jsonString)
           }
 
           override fun onError(id: String, ex: TruvideoSdkException) {
             // Handle error
-            val mainResponse = mapOf<String, Any?>(
+            val mainResponse = mapOf<String, String?>(
               "id" to id,
-              "error" to ex
+              "error" to ex.message.toString()
             )
-            promise.resolve(Json.encodeToString(mainResponse))
-            sendEvent(reactApplicationContext,"onError",Json.encodeToString(mainResponse))
+            val jsonString = Json.encodeToString(
+              MapSerializer(String.serializer(), JsonElement.serializer()),
+              mainResponse.mapValues { Json.encodeToJsonElement(it.value) }
+            )
+            promise.resolve(jsonString)
+            sendEvent(reactApplicationContext,"onError",jsonString)
           }
         })
       }
