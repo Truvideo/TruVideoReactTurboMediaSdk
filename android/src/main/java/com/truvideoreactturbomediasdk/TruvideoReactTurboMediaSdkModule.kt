@@ -67,14 +67,14 @@ class TruvideoReactTurboMediaSdkModule(reactContext: ReactApplicationContext) :
     val mainResponse = mapOf<String, String?>(
       "id" to request.id, // Generate a unique ID for the event
       "filePath" to request.filePath,
-      "fileType" to request.type,
-      "durationMilliseconds" to request.durationMilliseconds ,
+      "fileType" to request.type.toString(),
+      "durationMilliseconds" to request.durationMilliseconds.toString() ,
       "remoteId" to request.remoteId ,
       "remoteURL" to request.remoteUrl,
       "transcriptionURL" to request.transcriptionUrl,
-      "transcriptionLength" to request.transcriptionLength ,
-      "status" to request.status,
-      "progress" to request.uploadProgress
+      "transcriptionLength" to request.transcriptionLength.toString() ,
+      "status" to request.status.toString(),
+      "progress" to request.uploadProgress.toString()
     )
 
     return Json.encodeToString(
@@ -203,13 +203,13 @@ class TruvideoReactTurboMediaSdkModule(reactContext: ReactApplicationContext) :
         response.data.forEach {
           var mainResponse = mapOf<String, String?>(
               "id" to it.id, // Generate a unique ID for the event
-              "createdDate" to it.createdDate,
+              "createdDate" to it.createdDate.toString(),
               "remoteId" to it.id,
               "uploadedFileURL" to it.url,
               "metaData" to it.metadata.toJson(),
               "tags" to it.tags.toJson(),
               "transcriptionURL" to it.transcriptionUrl,
-              "transcriptionLength" to  it.transcriptionLength,
+              "transcriptionLength" to  it.transcriptionLength.toString(),
               "fileType" to it.type.name
             )
 
@@ -270,13 +270,13 @@ class TruvideoReactTurboMediaSdkModule(reactContext: ReactApplicationContext) :
 
             val mainResponse = mapOf<String, String?>(
               "id" to id, // Generate a unique ID for the event
-              "createdDate" to response.createdAt,
+              "createdDate" to response.createdAt.toString(),
               "remoteId" to response.remoteId,
               "uploadedFileURL" to response.remoteUrl,
               "metaData" to response.metadata.toJson(),
               "tags" to response.tags.toJson(),
               "transcriptionURL" to response.transcriptionUrl,
-              "transcriptionLength" to  response.transcriptionLength,
+              "transcriptionLength" to  response.transcriptionLength.toString(),
               "fileType" to response.type.name
             )
             val jsonString = Json.encodeToString(
@@ -291,7 +291,7 @@ class TruvideoReactTurboMediaSdkModule(reactContext: ReactApplicationContext) :
             // Handle progress
             val mainResponse = mapOf<String, String?>(
               "id" to id,
-              "progress" to (progress*100)
+              "progress" to (progress*100).toString()
             )
             val jsonString = Json.encodeToString(
               MapSerializer(String.serializer(), JsonElement.serializer()),
@@ -304,7 +304,7 @@ class TruvideoReactTurboMediaSdkModule(reactContext: ReactApplicationContext) :
             // Handle error
             val mainResponse = mapOf<String, String?>(
               "id" to id,
-              "error" to ex
+              "error" to ex.message.toString()
             )
             val jsonString = Json.encodeToString(
               MapSerializer(String.serializer(), JsonElement.serializer()),
