@@ -17,9 +17,15 @@ import com.truvideo.sdk.media.model.TruvideoSdkMediaTags
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.serialization.builtins.MapSerializer
+import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonElement
+import kotlinx.serialization.builtins.*
+import kotlinx.serialization.json.*
 import org.json.JSONObject
 import truvideo.sdk.common.exceptions.TruvideoSdkException
+import kotlin.collections.mapValues
 
 @ReactModule(name = TruvideoReactTurboMediaSdkModule.NAME)
 class TruvideoReactTurboMediaSdkModule(reactContext: ReactApplicationContext) :
@@ -62,7 +68,7 @@ class TruvideoReactTurboMediaSdkModule(reactContext: ReactApplicationContext) :
   }
 
   fun returnRequest(request : TruvideoSdkMediaFileUploadRequest) : String{
-    return Json.encodeToString(mapOf<String, Any?>(
+    val mainResponse =  mapOf<String, Any?>(
       "id" to request.id, // Generate a unique ID for the event
       "filePath" to request.filePath,
       "fileType" to request.type,
@@ -73,7 +79,12 @@ class TruvideoReactTurboMediaSdkModule(reactContext: ReactApplicationContext) :
       "transcriptionLength" to request.transcriptionLength ,
       "status" to request.status,
       "progress" to request.uploadProgress
-    ))
+    )
+    val jsonString = Json.encodeToString(
+      MapSerializer(String.serializer(), JsonElement.serializer()),
+      mainResponse.mapValues { Json.encodeToJsonElement(it.value) }
+    )
+    return jsonString
   }
 
   override fun getAllFileUploadRequests(status: String?, promise: Promise?) {
@@ -193,8 +204,7 @@ class TruvideoReactTurboMediaSdkModule(reactContext: ReactApplicationContext) :
 
         val list = ArrayList<String>()
         response.data.forEach {
-          var mainResponse = Json.encodeToString(
-            mapOf<String, Any?>(
+          var mainResponse = mapOf<String, Any?>(
               "id" to it.id, // Generate a unique ID for the event
               "createdDate" to it.createdDate,
               "remoteId" to it.id,
@@ -205,10 +215,14 @@ class TruvideoReactTurboMediaSdkModule(reactContext: ReactApplicationContext) :
               "transcriptionLength" to  it.transcriptionLength,
               "fileType" to it.type.name
             )
+
+          val jsonString = Json.encodeToString(
+            MapSerializer(String.serializer(), JsonElement.serializer()),
+            mainResponse.mapValues { Json.encodeToJsonElement(it.value) }
           )
-          list.add(mainResponse)
+          list.add(jsonString)
         }
-        promise!!.resolve(Json.encodeToString(list))
+        promise!!.resolve(Json.encodeToString(ListSerializer(String.serializer()), list))
       }
     }catch (e: Exception){
       promise!!.reject("Exception",e.message)
@@ -268,8 +282,12 @@ class TruvideoReactTurboMediaSdkModule(reactContext: ReactApplicationContext) :
               "transcriptionLength" to  response.transcriptionLength,
               "fileType" to response.type.name
             )
-            promise.resolve(Json.encodeToString(mainResponse))
-            sendEvent(reactApplicationContext,"onComplete",Json.encodeToString(mainResponse))
+            val jsonString = Json.encodeToString(
+              MapSerializer(String.serializer(), JsonElement.serializer()),
+              mainResponse.mapValues { Json.encodeToJsonElement(it.value) }
+            )
+            promise.resolve(jsonString)
+            sendEvent(reactApplicationContext,"onComplete",jsonString)
           }
 
           override fun onProgressChanged(id: String, progress: Float) {
@@ -278,7 +296,11 @@ class TruvideoReactTurboMediaSdkModule(reactContext: ReactApplicationContext) :
               "id" to id,
               "progress" to (progress*100)
             )
-            sendEvent(reactApplicationContext,"onProgress",Json.encodeToString(mainResponse))
+            val jsonString = Json.encodeToString(
+              MapSerializer(String.serializer(), JsonElement.serializer()),
+              mainResponse.mapValues { Json.encodeToJsonElement(it.value) }
+            )
+            sendEvent(reactApplicationContext,"onProgress",jsonString)
           }
 
           override fun onError(id: String, ex: TruvideoSdkException) {
@@ -287,8 +309,13 @@ class TruvideoReactTurboMediaSdkModule(reactContext: ReactApplicationContext) :
               "id" to id,
               "error" to ex
             )
-            promise.resolve(Json.encodeToString(mainResponse))
-            sendEvent(reactApplicationContext,"onError",Json.encodeToString(mainResponse))
+            val jsonString = Json.encodeToString(
+              MapSerializer(String.serializer(), JsonElement.serializer()),
+              mainResponse.mapValues { Json.encodeToJsonElement(it.value) }
+            )
+            promise.resolve(jsonString)
+
+            sendEvent(reactApplicationContext,"onError",jsonString)
           }
         })
       }
