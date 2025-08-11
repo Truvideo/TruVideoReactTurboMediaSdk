@@ -5,19 +5,16 @@ import android.util.Log
 import com.facebook.react.bridge.Promise
 import com.facebook.react.bridge.ReactApplicationContext
 import com.facebook.react.module.annotations.ReactModule
-import com.facebook.react.modules.core.DeviceEventManagerModule
-import com.google.gson.Gson
-import com.truvideo.sdk.media.TruvideoSdkMedia
-import com.truvideo.sdk.media.interfaces.TruvideoSdkMediaCallback
+import com.facebook.react.modules.core.DeviceEventManagerModule import com.truvideo.sdk.media.TruvideoSdkMedia
 import com.truvideo.sdk.media.interfaces.TruvideoSdkMediaFileUploadCallback
 import com.truvideo.sdk.media.model.TruvideoSdkMediaFileType
 import com.truvideo.sdk.media.model.TruvideoSdkMediaFileUploadRequest
 import com.truvideo.sdk.media.model.TruvideoSdkMediaFileUploadStatus
-import com.truvideo.sdk.media.model.TruvideoSdkMediaMetadata
 import com.truvideo.sdk.media.model.TruvideoSdkMediaTags
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import org.json.JSONArray
 import org.json.JSONObject
 import truvideo.sdk.common.exceptions.TruvideoSdkException
 
@@ -62,20 +59,18 @@ class TruvideoReactTurboMediaSdkModule(reactContext: ReactApplicationContext) :
   }
 
   fun returnRequest(request : TruvideoSdkMediaFileUploadRequest) : String{
-    return Gson().toJson(
-      mapOf<String, Any?>(
-        "id" to request.id, // Generate a unique ID for the event
-        "filePath" to request.filePath,
-        "fileType" to request.type,
-        "durationMilliseconds" to request.durationMilliseconds ,
-        "remoteId" to request.remoteId ,
-        "remoteURL" to request.remoteUrl,
-        "transcriptionURL" to request.transcriptionUrl,
-        "transcriptionLength" to request.transcriptionLength ,
-        "status" to request.status,
-        "progress" to request.uploadProgress
-      )
-    )
+    return JSONObject().apply {
+      put("id", request.id)
+      put("filePath", request.filePath)
+      put("fileType", request.type)
+      put("durationMilliseconds", request.durationMilliseconds)
+      put("remoteId", request.remoteId)
+      put("remoteURL", request.remoteUrl)
+      put("transcriptionURL", request.transcriptionUrl)
+      put("transcriptionLength", request.transcriptionLength)
+      put("status", request.status)
+      put("progress", request.uploadProgress)
+    }.toString()
   }
 
   override fun getAllFileUploadRequests(status: String?, promise: Promise?) {
@@ -192,25 +187,26 @@ class TruvideoReactTurboMediaSdkModule(reactContext: ReactApplicationContext) :
           pageNumber = page!!.toInt(),
           pageSize = pageSize!!.toInt()
         )
-        val gson = Gson()
-        val list = ArrayList<String>()
-        response.data.forEach {
-          var mainResponse = gson.toJson(
-            mapOf<String, Any?>(
-              "id" to it.id, // Generate a unique ID for the event
-              "createdDate" to it.createdDate,
-              "remoteId" to it.id,
-              "uploadedFileURL" to it.url,
-              "metaData" to it.metadata.toJson(),
-              "tags" to it.tags.toJson(),
-              "transcriptionURL" to it.transcriptionUrl,
-              "transcriptionLength" to  it.transcriptionLength,
-              "fileType" to it.type.name
-            )
-          )
-          list.add(mainResponse)
+        val jsonArray = JSONArray()
+
+        response.data.forEach { item ->
+
+          val jsonObject = JSONObject().apply {
+            put("id", item.id)
+            put("createdDate", item.createdDate)
+            put("remoteId", item.id)
+            put("uploadedFileURL", item.url)
+            put("metaData", JSONObject(item.metadata.map)) // assuming toJson() returns JSON string
+            put("tags", JSONObject(item.tags.map)) // assuming toJson() returns JSON array string
+            put("transcriptionURL", item.transcriptionUrl)
+            put("transcriptionLength", item.transcriptionLength)
+            put("fileType", item.type.name)
+          }
+          jsonArray.put(jsonObject)
         }
-        promise!!.resolve(gson.toJson(list))
+
+// Resolve with JSON string
+        promise!!.resolve(jsonArray.toString())
       }
     }catch (e: Exception){
       promise!!.reject("Exception",e.message)
@@ -250,48 +246,45 @@ class TruvideoReactTurboMediaSdkModule(reactContext: ReactApplicationContext) :
   override fun uploadMedia(id: String,promise: Promise){
     try{
       scope.launch {
-        val gson = Gson()
         val request = TruvideoSdkMedia.getFileUploadRequestById(id)
         request!!.upload(object : TruvideoSdkMediaFileUploadCallback {
           override fun onComplete(id: String, response: TruvideoSdkMediaFileUploadRequest) {
             // Handle completion
-//        val mainResponse = mapOf<String, Any?>(
-//          "id" to id,
-//          "response" to response
-//        )
 
-            val mainResponse = mapOf<String, Any?>(
-              "id" to id, // Generate a unique ID for the event
-              "createdDate" to response.createdAt,
-              "remoteId" to response.remoteId,
-              "uploadedFileURL" to response.remoteUrl,
-              "metaData" to response.metadata.toJson(),
-              "tags" to response.tags.toJson(),
-              "transcriptionURL" to response.transcriptionUrl,
-              "transcriptionLength" to  response.transcriptionLength,
-              "fileType" to response.type.name
-            )
-            promise.resolve(gson.toJson(mainResponse))
-            sendEvent(reactApplicationContext,"onComplete",gson.toJson(mainResponse))
+            val mainResponse = JSONObject().apply {
+              put("id", id) // Generate a unique ID for the event
+              put("createdDate", response.createdAt)
+              put("remoteId", response.remoteId)
+              put("uploadedFileURL", response.remoteUrl)
+              put("metaData", JSONObject(response.metadata.map)) // if toJson() is JSON string
+              put("tags", JSONObject(response.tags.map)) // or JSONArray if tags is a list
+              put("transcriptionURL", response.transcriptionUrl)
+              put("transcriptionLength", response.transcriptionLength)
+              put("fileType", response.type.name)
+            }
+            promise.resolve(mainResponse.toString())
+            sendEvent(reactApplicationContext,"onComplete",mainResponse.toString())
           }
 
           override fun onProgressChanged(id: String, progress: Float) {
             // Handle progress
-            val mainResponse = mapOf<String, Any?>(
-              "id" to id,
-              "progress" to (progress*100)
-            )
-            sendEvent(reactApplicationContext,"onProgress",gson.toJson(mainResponse))
+
+            val mainResponse = JSONObject().apply {
+              put("id", id) // Generate a unique ID for the event
+              put("progress",  (progress*100))
+            }
+            sendEvent(reactApplicationContext,"onProgress",mainResponse.toString())
           }
 
           override fun onError(id: String, ex: TruvideoSdkException) {
             // Handle error
-            val mainResponse = mapOf<String, Any?>(
-              "id" to id,
-              "error" to ex
-            )
-            promise.resolve(gson.toJson(mainResponse))
-            sendEvent(reactApplicationContext,"onError",gson.toJson(mainResponse))
+
+            val mainResponse = JSONObject().apply {
+              put("id", id) // Generate a unique ID for the event
+              put("error",  ex)
+            }
+            promise.resolve(mainResponse.toString())
+            sendEvent(reactApplicationContext,"onError",mainResponse.toString())
           }
         })
       }

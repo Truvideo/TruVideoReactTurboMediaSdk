@@ -1,7 +1,8 @@
 {
-  "name": "truvideo-react-turbo-media-sdk",
-  "version": "0.1.0",
+  "name": "@trunpm/truvideo-react-turbo-media-sdk",
+  "version": "1.0.0",
   "description": "Media Module",
+  "private": false,
   "source": "./src/index.tsx",
   "main": "./lib/commonjs/index.js",
   "module": "./lib/module/index.js",
@@ -52,16 +53,17 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/akshay2801-rgb/TruVideoReactTurboMediaSdk.git"
+    "url": "git+https://github.com/Truvideo/TruVideoReactTurboMediaSdk.git"
   },
-  "author": "Akshay  <akshay.chouhan@5exceptions.com> (https://github.com/akshay2801-rgb)",
+  "author": "Truvideo <info@truvideo.com> (https://github.com/Truvideo)",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/akshay2801-rgb/TruVideoReactTurboMediaSdk/issues"
+    "url": "https://github.com/Truvideo/TruVideoReactTurboMediaSdk/issues"
   },
-  "homepage": "https://github.com/akshay2801-rgb/TruVideoReactTurboMediaSdk#readme",
+  "homepage": "https://github.com/Truvideo/TruVideoReactTurboMediaSdk#readme",
   "publishConfig": {
-    "registry": "https://registry.npmjs.org/"
+    "registry": "https://registry.npmjs.org/",
+    "access": "restricted"
   },
   "devDependencies": {
     "@commitlint/config-conventional": "^17.0.2",
@@ -199,5 +201,9 @@
     "type": "turbo-module",
     "languages": "kotlin-objc",
     "version": "0.45.5"
+  },
+  "directories": {
+    "example": "example",
+    "lib": "lib"
   }
 }
