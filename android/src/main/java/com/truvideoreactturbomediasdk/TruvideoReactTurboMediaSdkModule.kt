@@ -1,7 +1,5 @@
 package com.truvideoreactturbomediasdk
 
-import android.content.Context
-import android.util.Log
 import com.facebook.react.bridge.Promise
 import com.facebook.react.bridge.ReactApplicationContext
 import com.facebook.react.module.annotations.ReactModule
@@ -35,7 +33,7 @@ class TruvideoReactTurboMediaSdkModule(reactContext: ReactApplicationContext) :
   override fun mediaBuilder(filePath: String?, tag: String?, metaData: String?, promise: Promise?) {
     try {
       CoroutineScope(Dispatchers.Main).launch {
-        builder(reactApplicationContext,filePath!!,tag!!,metaData!!,promise!!)
+        builder(filePath!!,tag!!,metaData!!,promise!!)
       }
     }catch (e : Exception){
       promise!!.reject("Exception",e.message)
@@ -49,7 +47,7 @@ class TruvideoReactTurboMediaSdkModule(reactContext: ReactApplicationContext) :
         if(request == null){
           promise!!.resolve("{}")
         }else{
-          var mainResponse = returnRequest(request)
+          val mainResponse = returnRequest(request)
           promise!!.resolve(mainResponse)
         }
       }
@@ -173,7 +171,7 @@ class TruvideoReactTurboMediaSdkModule(reactContext: ReactApplicationContext) :
             TruvideoSdkMediaFileType.Picture
           }
         }
-        val jsonTag = JSONObject(tag)
+        val jsonTag = JSONObject(tag!!)
         val map = mutableMapOf<String, String>()
         val keys = jsonTag.keys()
         while (keys.hasNext()) {
@@ -190,14 +188,22 @@ class TruvideoReactTurboMediaSdkModule(reactContext: ReactApplicationContext) :
         val jsonArray = JSONArray()
 
         response.data.forEach { item ->
+          val metadataObj = JSONObject()
+          item.metadata.map.keys.forEach { key ->
+            metadataObj.put(key, item.metadata.map[key])
+          }
+          val tagsObj = JSONObject()
+          item.tags.map.keys.forEach { key ->
+            tagsObj.put(key, item.tags.map[key])
+          }
 
           val jsonObject = JSONObject().apply {
             put("id", item.id)
             put("createdDate", item.createdDate)
             put("remoteId", item.id)
             put("uploadedFileURL", item.url)
-            put("metaData", JSONObject(item.metadata.map)) // assuming toJson() returns JSON string
-            put("tags", JSONObject(item.tags.map)) // assuming toJson() returns JSON array string
+            put("metaData", metadataObj) // assuming toJson() returns JSON string
+            put("tags", tagsObj) // assuming toJson() returns JSON array string
             put("transcriptionURL", item.transcriptionUrl)
             put("transcriptionLength", item.transcriptionLength)
             put("fileType", item.type.name)
@@ -214,15 +220,15 @@ class TruvideoReactTurboMediaSdkModule(reactContext: ReactApplicationContext) :
   }
 
 
-  suspend fun builder(context: Context, filePath: String, tag : String, metaData : String, promise: Promise){
+  suspend fun builder(filePath: String, tag : String, metaData : String, promise: Promise){
     // Create a file upload request builder
     try{
       val builder = TruvideoSdkMedia.FileUploadRequestBuilder(filePath)
       val jsonTag = JSONObject(tag)
-      var keys = jsonTag.keys()
+      val keys = jsonTag.keys()
       while (keys.hasNext()) {
-        var key = keys.next()
-        var value= jsonTag.getString(key) // Can be any type: String, Integer, Boolean, etc.
+        val key = keys.next()
+        val value= jsonTag.getString(key) // Can be any type: String, Integer, Boolean, etc.
         builder.addTag(key, value)
       }
       // Metadata
@@ -235,7 +241,7 @@ class TruvideoReactTurboMediaSdkModule(reactContext: ReactApplicationContext) :
       }
       // Build the request
       val request = builder.build()
-      var mainResponse = returnRequest(request)
+      val mainResponse = returnRequest(request)
       // Upload the file
       promise.resolve(mainResponse)
     }catch (e: Exception){
@@ -250,14 +256,21 @@ class TruvideoReactTurboMediaSdkModule(reactContext: ReactApplicationContext) :
         request!!.upload(object : TruvideoSdkMediaFileUploadCallback {
           override fun onComplete(id: String, response: TruvideoSdkMediaFileUploadRequest) {
             // Handle completion
-
+            val metadataObj = JSONObject()
+            response.metadata.map.keys.forEach { key ->
+              metadataObj.put(key, response.metadata.map[key])
+            }
+            val tagsObj = JSONObject()
+            response.tags.map.keys.forEach { key ->
+              tagsObj.put(key, response.tags.map[key])
+            }
             val mainResponse = JSONObject().apply {
               put("id", id) // Generate a unique ID for the event
               put("createdDate", response.createdAt)
               put("remoteId", response.remoteId)
               put("uploadedFileURL", response.remoteUrl)
-              put("metaData", JSONObject(response.metadata.map)) // if toJson() is JSON string
-              put("tags", JSONObject(response.tags.map)) // or JSONArray if tags is a list
+              put("metaData", metadataObj) // if toJson() is JSON string
+              put("tags", tagsObj) // or JSONArray if tags is a list
               put("transcriptionURL", response.transcriptionUrl)
               put("transcriptionLength", response.transcriptionLength)
               put("fileType", response.type.name)
@@ -289,7 +302,7 @@ class TruvideoReactTurboMediaSdkModule(reactContext: ReactApplicationContext) :
         })
       }
     }catch (e: Exception){
-      promise!!.reject("Exception",e.message)
+      promise.reject("Exception",e.message)
     }
   }
 
