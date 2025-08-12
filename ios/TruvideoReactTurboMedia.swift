@@ -214,20 +214,21 @@ import React
         resolve("[]")
       }else{
         var list = [String]()
-        let dateFormatter = ISO8601DateFormatter()
+        //let dateFormatter = ISO8601DateFormatter()
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "EEE MMM dd HH:mm:ss 'GMT'Z yyyy"
+        dateFormatter.locale = Locale(identifier: "en_US_POSIX")
         for media in mediaList! {
           let tagJsonData = try JSONSerialization.data(withJSONObject: media.tags.dictionary, options: [])
           if let tagJsonString = String(data: tagJsonData, encoding: .utf8) {
-            
-            
-            
-            let mediaDict: [String: String] = [
+          
+            let mediaDict: [String: Any] = [
               "id": media.remoteId,
               "createdDate":dateFormatter.string(from: media.createdDate),
               "remoteId": media.remoteId,
               "uploadedFileURL": media.uploadedFileURL.absoluteString,
-              "metaData": try self.convertToJsonString(from : media.metadata.dictionary),  // must return [String: Any]
-              "tags": tagJsonString,          // must return [String: Any]
+              "metaData": media.metadata.dictionary,  // must return [String: Any]
+              "tags": media.tags.dictionary,          // must return [String: Any]
               "transcriptionURL": media.transcriptionURL?.absoluteString ?? "",
               "transcriptionLength": "\(media.transcriptionLength)",
               "fileType": media.type.rawValue
@@ -293,13 +294,13 @@ import React
           do {
             let tagJsonData = try JSONSerialization.data(withJSONObject: tags.dictionary, options: [])
             if let tagJsonString = String(data: tagJsonData, encoding: .utf8) {
-              let mainResponse: [String: String] = [
+              let mainResponse: [String: Any] = [
                   "id": id ?? "", // Generate a unique ID for the event
                   "createdDate" : dateFormatter.string(from: uploadedResult.createdDate),
                   "remoteId" : uploadedResult.remoteId,
                   "uploadedFileURL": uploadedFileURL.absoluteString,
-                  "metaData": try self.convertToJsonString(from : metadataDict.dictionary),
-                  "tags":  tagJsonString,
+                  "metaData": metadataDict.dictionary,
+                  "tags":  tags.dictionary,
                   "transcriptionURL": transcriptionURL?.absoluteString ?? "",
                   "transcriptionLength": "\(transcriptionLength)",
                   "fileType" : uploadedResult.type.rawValue
