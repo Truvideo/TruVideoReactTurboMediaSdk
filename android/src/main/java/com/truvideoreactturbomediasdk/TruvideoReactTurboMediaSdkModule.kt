@@ -296,8 +296,8 @@ class TruvideoReactTurboMediaSdkModule(reactContext: ReactApplicationContext) :
               put("id", id) // Generate a unique ID for the event
               put("error",  ex)
             }
-            promise.resolve(mainResponse.toString())
             sendEvent(reactApplicationContext,"onError",mainResponse.toString())
+            promise.reject(id,ex.message,ex)
           }
         })
       }
