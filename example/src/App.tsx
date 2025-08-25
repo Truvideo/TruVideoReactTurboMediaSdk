@@ -1,5 +1,5 @@
 import { Text, View, StyleSheet } from 'react-native';
-import { MediaBuilder } from 'truvideo-react-turbo-media-sdk';
+import { MediaBuilder,type UploadProgressEvent } from 'truvideo-react-turbo-media-sdk';
 
 const result = new MediaBuilder('filepath');
 result.setTag('key', 'value');
@@ -7,7 +7,7 @@ result.setMetaData('key', 'value');
 var request = await result.build();
 
 const uploadCallbacks = {
-  onProgress: (event: { id: string; progress: string }) => {
+  onProgress: (event: UploadProgressEvent) => {
     console.log(event);
   },
   onComplete: (event: any) => {
