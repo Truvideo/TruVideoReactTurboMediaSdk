@@ -6,7 +6,11 @@ import React
 
 @objc public class TruVideoReactMediaSdkClass: NSObject {
     private var disposeBag = Set<AnyCancellable>()
-
+    public class Event: RCTEventEmitter {
+      func emit(name: String, body: String) {
+        self.sendEvent(withName: name, body: body)
+      }
+    }
     @objc public func mediaBuilder(filePath: String, tag: String, metaData: String, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
         guard let fileURL = URL(string: "file://\(filePath)") else {
             reject("INVALID_URL", "The file URL is invalid", nil)
