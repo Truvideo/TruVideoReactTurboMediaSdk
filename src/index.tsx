@@ -1,7 +1,10 @@
-import { NativeModules, NativeEventEmitter } from 'react-native';
+import { 
+  //NativeModules,
+  //NativeEventEmitter,
+  DeviceEventEmitter } from 'react-native';
 import TruvideoReactTurboMediaSdk from './NativeTruvideoReactTurboMediaSdk';
-const TruvideoReactTurboMedia = NativeModules.TruvideoReactTurboMediaSdk;
-const mediaEventEmitter = new NativeEventEmitter(TruvideoReactTurboMedia);
+//const TruvideoReactTurboMedia = NativeModules.TruvideoReactTurboMediaSdk;
+//const mediaEventEmitter = new NativeEventEmitter(TruvideoReactTurboMedia);
 export interface MediaData {
   id: string;
   filePath: string;
@@ -13,7 +16,6 @@ export interface MediaData {
   transcriptionLength: number;
   status: string;
   progress: number;
-  // Add other properties as per your mapOf keys
 }
 
 export interface UploadProgressEvent {
@@ -26,7 +28,7 @@ export interface UploadCompleteEventData {
   createdDate?: string;
   remoteId?: string;
   uploadedFileURL?: string;
-  metaData?: string; // Change to 'any' or a specific type after JSON.parse
+  metaData?: string; 
   tags?: string;
   transcriptionURL?: string;
   transcriptionLength?: number;
@@ -173,6 +175,65 @@ export class MediaBuilder {
     }
     return TruvideoReactTurboMediaSdk.resumeMedia(this.mediaDetail.id);
   }
+  // upload(callbacks: UploadCallbacks): Promise<string> {
+  //   if (this.mediaDetail === undefined) {
+  //     return Promise.reject(
+  //       new Error('Cannot upload: mediaDetail is undefined.')
+  //     );
+  //   }
+
+  //   this.removeEventListeners;
+  //   // Store the ID of the current upload this instance is handling
+  //   this.currentUploadId = this.mediaDetail.id;
+
+  //   // Add new listeners
+  //   this.listeners.push(
+  //     mediaEventEmitter.addListener('onProgress', (eventJson: string) => {
+  //       const event: UploadProgressEvent = JSON.parse(eventJson);
+  //       if (event.id === this.currentUploadId && callbacks?.onProgress) {
+  //         callbacks.onProgress(event);
+  //       }
+  //     })
+  //   );
+
+  //   this.listeners.push(
+  //     mediaEventEmitter.addListener('onComplete', (eventJson: string) => {
+  //       const event: UploadCompleteEventData = JSON.parse(eventJson);
+  //       if (event.id === this.currentUploadId && callbacks?.onComplete) {
+  //         // Parse nested JSON strings if they exist
+  //         if (event.metaData && typeof event.metaData === 'string') {
+  //           event.metaData = JSON.parse(event.metaData);
+  //         }
+  //         if (event.tags && typeof event.tags === 'string') {
+  //           event.tags = JSON.parse(event.tags);
+  //         }
+  //         callbacks.onComplete(event);
+  //       }
+  //       // Always remove listeners after a complete or error event for this upload
+  //       this.removeEventListeners();
+  //     })
+  //   );
+
+  //   this.listeners.push(
+  //     mediaEventEmitter.addListener('onError', (eventJson: string) => {
+  //       const event: UploadErrorEvent = JSON.parse(eventJson);
+  //       if (event.id === this.currentUploadId && callbacks?.onError) {
+  //         callbacks.onError(event);
+  //       }
+  //       // Always remove listeners after a complete or error event for this upload
+  //       this.removeEventListeners();
+  //     })
+  //   );
+  //   return TruvideoReactTurboMediaSdk.uploadMedia(this.mediaDetail.id);
+  // }
+
+  // removeEventListeners(): void {
+  //   this.listeners.forEach((listener) => listener.remove());
+  //   this.listeners = []; // Clear the array
+  //   this.currentUploadId = undefined; // Clear the current upload ID
+  // }
+
+
   upload(callbacks: UploadCallbacks): Promise<string> {
     if (this.mediaDetail === undefined) {
       return Promise.reject(
@@ -180,13 +241,12 @@ export class MediaBuilder {
       );
     }
 
-    this.removeEventListeners;
-    // Store the ID of the current upload this instance is handling
+    this.removeEventListeners();
     this.currentUploadId = this.mediaDetail.id;
 
-    // Add new listeners
+    // ✅ Use DeviceEventEmitter instead of NativeEventEmitter
     this.listeners.push(
-      mediaEventEmitter.addListener('onProgress', (eventJson: string) => {
+      DeviceEventEmitter.addListener('onProgress', (eventJson: string) => {
         const event: UploadProgressEvent = JSON.parse(eventJson);
         if (event.id === this.currentUploadId && callbacks?.onProgress) {
           callbacks.onProgress(event);
@@ -195,10 +255,9 @@ export class MediaBuilder {
     );
 
     this.listeners.push(
-      mediaEventEmitter.addListener('onComplete', (eventJson: string) => {
+      DeviceEventEmitter.addListener('onComplete', (eventJson: string) => {
         const event: UploadCompleteEventData = JSON.parse(eventJson);
         if (event.id === this.currentUploadId && callbacks?.onComplete) {
-          // Parse nested JSON strings if they exist
           if (event.metaData && typeof event.metaData === 'string') {
             event.metaData = JSON.parse(event.metaData);
           }
@@ -207,27 +266,26 @@ export class MediaBuilder {
           }
           callbacks.onComplete(event);
         }
-        // Always remove listeners after a complete or error event for this upload
         this.removeEventListeners();
       })
     );
 
     this.listeners.push(
-      mediaEventEmitter.addListener('onError', (eventJson: string) => {
+      DeviceEventEmitter.addListener('onError', (eventJson: string) => {
         const event: UploadErrorEvent = JSON.parse(eventJson);
         if (event.id === this.currentUploadId && callbacks?.onError) {
           callbacks.onError(event);
         }
-        // Always remove listeners after a complete or error event for this upload
         this.removeEventListeners();
       })
     );
+
     return TruvideoReactTurboMediaSdk.uploadMedia(this.mediaDetail.id);
   }
 
   removeEventListeners(): void {
     this.listeners.forEach((listener) => listener.remove());
-    this.listeners = []; // Clear the array
-    this.currentUploadId = undefined; // Clear the current upload ID
+    this.listeners = [];
+    this.currentUploadId = undefined;
   }
 }
