@@ -61,6 +61,10 @@ class TruvideoReactTurboMediaSdkModule(reactContext: ReactApplicationContext) :
       put("id", request.id)
       put("filePath", request.filePath)
       put("fileType", request.type)
+      put("createdAt", request.createdAt )
+      put("updateAt",request.updatedAt)
+      put("tags" , request.tags)
+      put("metadata", request.metadata)
       put("durationMilliseconds", request.durationMilliseconds)
       put("remoteId", request.remoteId)
       put("remoteURL", request.remoteUrl)
@@ -239,6 +243,7 @@ class TruvideoReactTurboMediaSdkModule(reactContext: ReactApplicationContext) :
         val value = jsonMetadata.getString(key) // Can be any type: String, Integer, Boolean, etc.
         builder.addMetadata(key, value)
       }
+
       // Build the request
       val request = builder.build()
       val mainResponse = returnRequest(request)

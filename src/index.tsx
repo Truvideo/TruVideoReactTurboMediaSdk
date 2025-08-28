@@ -9,6 +9,10 @@ export interface MediaData {
   id: string;
   filePath: string;
   fileType: string;
+  createdAt: string;
+  updatedAt: string;
+  tags: string;
+  metaData: string;
   durationMilliseconds: number;
   remoteId: string;
   remoteURL: string;
