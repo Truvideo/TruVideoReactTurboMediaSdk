@@ -51,26 +51,70 @@ export interface UploadCallbacks {
   onError?: (event: UploadErrorEvent) => void;
 }
 
-export function getFileUploadRequestById(id: string): Promise<string> {
-  return TruvideoReactTurboMediaSdk.getFileUploadRequestById(id);
+export async function getFileUploadRequestById(id: string): Promise<MediaData | null> {
+  return TruvideoReactTurboMediaSdk.getFileUploadRequestById(id).then((response: string) => {
+      try {
+        const parsed: MediaData = JSON.parse(response);
+        return parsed;
+      } catch (e) {
+        console.error("Failed to parse MediaData JSON:", e);
+        return null;
+      }
+    });
 }
 
-export function getAllFileUploadRequests(status: string): Promise<string> {
-  return TruvideoReactTurboMediaSdk.getAllFileUploadRequests(status);
+export enum UploadRequestStatus {
+  UPLOADING ="UPLOADING",
+  IDLE ="IDLE",
+  ERROR ="ERROR",
+  PAUSED ="PAUSED",
+  COMPLETED ="COMPLETED",
+  CANCELED ="CANCELED",
+  SYNCHRONIZING ="SYNCHRONIZING",
 }
 
-export function search(
-  tag: string,
-  type: string,
+export async function getAllFileUploadRequests(status?: UploadRequestStatus): Promise<MediaData[]> {
+  
+  return TruvideoReactTurboMediaSdk.getAllFileUploadRequests(status || '')
+    .then((response: string) => {
+      try {
+        const parsed: MediaData[] = JSON.parse(response);
+        return parsed;
+      } catch (e) {
+        console.error("Failed to parse MediaData JSON:", e);
+        return [];
+      }
+    });
+}
+export enum MediaType {
+  IMAGE = 'Image',
+  VIDEO = 'Video',
+  AUDIO = 'AUDIO',
+  PDF = 'PDF',
+}
+
+export async function search(
+  tags: Map<string, string>,
   page: number,
-  pageSize: number
-): Promise<string> {
+  pageSize: number,
+  type?: MediaType,
+): Promise<UploadCompleteEventData | null> {
+  const typeData = type || MediaType.IMAGE;
+  const tag = JSON.stringify(tags);
   return TruvideoReactTurboMediaSdk.search(
     tag,
-    type,
+    typeData,
     page.toString(),
     pageSize.toString()
-  );
+  ).then((response: string) => {
+      try {
+        const parsed: UploadCompleteEventData = JSON.parse(response);
+        return parsed;
+      } catch (e) {
+        console.error("Failed to parse MediaData JSON:", e);
+        return null;
+      }
+    });;
 }
 
 export class MediaBuilder {
@@ -180,7 +224,7 @@ export class MediaBuilder {
     return TruvideoReactTurboMediaSdk.resumeMedia(this.mediaDetail.id);
   }
 
-  upload(callbacks: UploadCallbacks): Promise<string> {
+  async upload(callbacks: UploadCallbacks): Promise<UploadCompleteEventData | null> {
     if (this.mediaDetail === undefined) {
       return Promise.reject(
         new Error('Cannot upload: mediaDetail is undefined.')
@@ -226,7 +270,15 @@ export class MediaBuilder {
       })
     );
 
-    return TruvideoReactTurboMediaSdk.uploadMedia(this.mediaDetail.id);
+    return TruvideoReactTurboMediaSdk.uploadMedia(this.mediaDetail.id).then((response: string) => {
+      try {
+        const parsed: UploadCompleteEventData = JSON.parse(response);
+        return parsed;
+      } catch (e) {
+        console.error("Failed to parse MediaData JSON:", e);
+        return null;
+      }
+    });
   }
 
   removeEventListeners(): void {

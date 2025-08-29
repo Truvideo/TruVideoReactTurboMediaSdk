@@ -158,10 +158,7 @@ class TruvideoReactTurboMediaSdkModule(reactContext: ReactApplicationContext) :
   ) {
     try{
       scope.launch {
-        val typeData = when (type) {
-          "All" -> {
-            TruvideoSdkMediaFileType.All
-          }
+        val typeData : TruvideoSdkMediaFileType = when (type) {
           "Video" -> {
             TruvideoSdkMediaFileType.Video
           }
@@ -171,8 +168,11 @@ class TruvideoReactTurboMediaSdkModule(reactContext: ReactApplicationContext) :
           "PDF" -> {
             TruvideoSdkMediaFileType.PDF
           }
-          else -> {
+          "Image" -> {
             TruvideoSdkMediaFileType.Picture
+          }
+          else -> {
+            TruvideoSdkMediaFileType.All
           }
         }
         val jsonTag = JSONObject(tag!!)

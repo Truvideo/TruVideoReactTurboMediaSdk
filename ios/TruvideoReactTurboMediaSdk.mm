@@ -22,9 +22,9 @@ RCT_EXPORT_MODULE()
 }
 
 
-- (void)getAllFileUploadRequests:(nonnull NSString *)status resolve:(nonnull RCTPromiseResolveBlock)resolve reject:(nonnull RCTPromiseRejectBlock)reject { 
+- (void)getAllFileUploadRequests:(nonnull NSString *)status resolve:(nonnull RCTPromiseResolveBlock)resolve reject:(nonnull RCTPromiseRejectBlock)reject {
   TruVideoReactMediaSdkClass *truvideo = [[TruVideoReactMediaSdkClass alloc] init];
-  
+  [truvideo getAllFileRequestsWithStatus:status resolve:resolve reject:reject];
 }
 
 
