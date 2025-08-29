@@ -179,64 +179,6 @@ export class MediaBuilder {
     }
     return TruvideoReactTurboMediaSdk.resumeMedia(this.mediaDetail.id);
   }
-  // upload(callbacks: UploadCallbacks): Promise<string> {
-  //   if (this.mediaDetail === undefined) {
-  //     return Promise.reject(
-  //       new Error('Cannot upload: mediaDetail is undefined.')
-  //     );
-  //   }
-
-  //   this.removeEventListeners;
-  //   // Store the ID of the current upload this instance is handling
-  //   this.currentUploadId = this.mediaDetail.id;
-
-  //   // Add new listeners
-  //   this.listeners.push(
-  //     mediaEventEmitter.addListener('onProgress', (eventJson: string) => {
-  //       const event: UploadProgressEvent = JSON.parse(eventJson);
-  //       if (event.id === this.currentUploadId && callbacks?.onProgress) {
-  //         callbacks.onProgress(event);
-  //       }
-  //     })
-  //   );
-
-  //   this.listeners.push(
-  //     mediaEventEmitter.addListener('onComplete', (eventJson: string) => {
-  //       const event: UploadCompleteEventData = JSON.parse(eventJson);
-  //       if (event.id === this.currentUploadId && callbacks?.onComplete) {
-  //         // Parse nested JSON strings if they exist
-  //         if (event.metaData && typeof event.metaData === 'string') {
-  //           event.metaData = JSON.parse(event.metaData);
-  //         }
-  //         if (event.tags && typeof event.tags === 'string') {
-  //           event.tags = JSON.parse(event.tags);
-  //         }
-  //         callbacks.onComplete(event);
-  //       }
-  //       // Always remove listeners after a complete or error event for this upload
-  //       this.removeEventListeners();
-  //     })
-  //   );
-
-  //   this.listeners.push(
-  //     mediaEventEmitter.addListener('onError', (eventJson: string) => {
-  //       const event: UploadErrorEvent = JSON.parse(eventJson);
-  //       if (event.id === this.currentUploadId && callbacks?.onError) {
-  //         callbacks.onError(event);
-  //       }
-  //       // Always remove listeners after a complete or error event for this upload
-  //       this.removeEventListeners();
-  //     })
-  //   );
-  //   return TruvideoReactTurboMediaSdk.uploadMedia(this.mediaDetail.id);
-  // }
-
-  // removeEventListeners(): void {
-  //   this.listeners.forEach((listener) => listener.remove());
-  //   this.listeners = []; // Clear the array
-  //   this.currentUploadId = undefined; // Clear the current upload ID
-  // }
-
 
   upload(callbacks: UploadCallbacks): Promise<string> {
     if (this.mediaDetail === undefined) {
