@@ -1,10 +1,5 @@
-import { 
-  //NativeModules,
-  //NativeEventEmitter,
-  DeviceEventEmitter } from 'react-native';
+import { DeviceEventEmitter } from 'react-native';
 import TruvideoReactTurboMediaSdk from './NativeTruvideoReactTurboMediaSdk';
-//const TruvideoReactTurboMedia = NativeModules.TruvideoReactTurboMediaSdk;
-//const mediaEventEmitter = new NativeEventEmitter(TruvideoReactTurboMedia);
 export interface MediaData {
   id: string;
   filePath: string;

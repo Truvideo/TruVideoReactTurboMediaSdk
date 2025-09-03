@@ -131,7 +131,7 @@ import React
                     "uploadedFileURL": uploadedFileURL.absoluteString,
                     "metaData": metadataDict.dictionary,
                     "tags": tags.dictionary,
-                    "transcriptionURL": transcriptionURL,
+                    "transcriptionURL": transcriptionURL?.absoluteString ?? "",
                     "transcriptionLength": transcriptionLength
                 ]
 
@@ -274,11 +274,11 @@ import React
                   "updatedAt": request.updatedAt != nil ? dateFormatter.string(from: request.updatedAt!) : "",
                   "tags": tagString,
                   "metadata": metadataString,
-                  "durationMilliseconds": "\(request.durationMilliseconds)",
+                  "durationMilliseconds": "\(String(describing: request.durationMilliseconds))",
                   "remoteId": request.remoteId ?? "",
                   "remoteURL": request.remoteURL?.absoluteString ?? "",
                   "transcriptionURL": request.transcriptionURL ?? "",
-                  "transcriptionLength": "\(request.transcriptionLength)",
+                  "transcriptionLength": "\(String(describing: request.transcriptionLength))",
                   "status": "\(request.status.rawValue)",
                   "progress": "\(request.uploadProgress)"
               ]
@@ -331,7 +331,7 @@ import React
     let tagDict = try? convertToDictionary(from: tag)
     var tagBuild = TruvideoSdkMediaTags.builder()
     for (key, value) in tagDict! {
-      tagBuild.set(key, "\(value)")
+      var set = tagBuild.set(key, "\(value)")
     }
     var typeData : TruvideoSdkMediaType?
     if(type == "Image"){
