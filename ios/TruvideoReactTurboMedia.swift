@@ -16,7 +16,8 @@ import React
             let builder = try createFileUploadRequestBuilder(fileURL: fileURL, tag: tag, metaData: metaData)
           var request = try builder.build()
           
-          let dateFormatter = DateFormatter()
+          let dateFormatter = ISO8601DateFormatter()
+          //let dateFormatter = DateFormatter()
           var tagString = ""
           let tagJsonData = try JSONSerialization.data(withJSONObject: request.tags.dictionary, options: [])
           if let tagJsonString = String(data: tagJsonData, encoding: .utf8) {
@@ -29,8 +30,8 @@ import React
             metadataString = metadataJsonString
           }
           
-          dateFormatter.dateFormat = "EEE MMM dd HH:mm:ss 'GMT'Z yyyy"
-          dateFormatter.locale = Locale(identifier: "en_US_POSIX")
+//          dateFormatter.dateFormat = "EEE MMM dd HH:mm:ss 'GMT'Z yyyy"
+//          dateFormatter.locale = Locale(identifier: "en_US_POSIX")
           let mainResponse: [String: String] = [
             "id": request.id.uuidString, // Generate a unique ID for the event
             "filePath": request.filePath,
@@ -181,7 +182,8 @@ import React
   @objc public func getFileUploadRequestById(id: String, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock){
     do {
       let request =  try TruvideoSdkMedia.getFileUploadRequest(withId : id)
-      let dateFormatter = DateFormatter()
+      let dateFormatter = ISO8601DateFormatter()
+      //let dateFormatter = DateFormatter()
       var tagString = ""
       let tagJsonData = try JSONSerialization.data(withJSONObject: request.tags.dictionary, options: [])
       if let tagJsonString = String(data: tagJsonData, encoding: .utf8) {
@@ -194,8 +196,8 @@ import React
         metadataString = metadataJsonString
       }
       
-      dateFormatter.dateFormat = "EEE MMM dd HH:mm:ss 'GMT'Z yyyy"
-      dateFormatter.locale = Locale(identifier: "en_US_POSIX")
+//      dateFormatter.dateFormat = "EEE MMM dd HH:mm:ss 'GMT'Z yyyy"
+//      dateFormatter.locale = Locale(identifier: "en_US_POSIX")
       let mainResponse: [String: String] = [
         "id": request.id.uuidString, // Generate a unique ID for the event
         "filePath": request.filePath,
@@ -250,7 +252,8 @@ import React
         statusData = nil
       }
       let requests =  try TruvideoSdkMedia.getFileUploadRequests(byStatus: statusData)
-      let dateFormatter = DateFormatter()
+      //let dateFormatter = DateFormatter()
+      let dateFormatter = ISO8601DateFormatter()
       var responseArray: [[String: String]] = []
 
           for request in requests {
@@ -352,10 +355,10 @@ import React
         resolve("[]")
       }else{
         var list = [String]()
-        //let dateFormatter = ISO8601DateFormatter()
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "EEE MMM dd HH:mm:ss 'GMT'Z yyyy"
-        dateFormatter.locale = Locale(identifier: "en_US_POSIX")
+        let dateFormatter = ISO8601DateFormatter()
+//        let dateFormatter = DateFormatter()
+//        dateFormatter.dateFormat = "EEE MMM dd HH:mm:ss 'GMT'Z yyyy"
+//        dateFormatter.locale = Locale(identifier: "en_US_POSIX")
         for media in mediaList! {
           let tagJsonData = try JSONSerialization.data(withJSONObject: media.tags.dictionary, options: [])
           if let tagJsonString = String(data: tagJsonData, encoding: .utf8) {
@@ -423,11 +426,11 @@ import React
             print("tags: " , tags.dictionary)
             print("metaData: " , metadataDict.dictionary)
             // Send completion event
-            //let dateFormatter = ISO8601DateFormatter()
+            let dateFormatter = ISO8601DateFormatter()
 
-          let dateFormatter = DateFormatter()
-          dateFormatter.dateFormat = "EEE MMM dd HH:mm:ss 'GMT'Z yyyy"
-          dateFormatter.locale = Locale(identifier: "en_US_POSIX")
+//          let dateFormatter = DateFormatter()
+//          dateFormatter.dateFormat = "EEE MMM dd HH:mm:ss 'GMT'Z yyyy"
+//          dateFormatter.locale = Locale(identifier: "en_US_POSIX")
 
           do {
             let tagJsonData = try JSONSerialization.data(withJSONObject: tags.dictionary, options: [])

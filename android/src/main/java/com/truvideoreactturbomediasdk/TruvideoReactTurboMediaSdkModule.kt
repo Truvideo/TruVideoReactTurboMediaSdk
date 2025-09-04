@@ -1,5 +1,7 @@
 package com.truvideoreactturbomediasdk
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import com.facebook.react.bridge.Promise
 import com.facebook.react.bridge.ReactApplicationContext
 import com.facebook.react.module.annotations.ReactModule
@@ -15,6 +17,7 @@ import kotlinx.coroutines.launch
 import org.json.JSONArray
 import org.json.JSONObject
 import truvideo.sdk.common.exceptions.TruvideoSdkException
+import java.time.format.DateTimeFormatter
 
 @ReactModule(name = TruvideoReactTurboMediaSdkModule.NAME)
 class TruvideoReactTurboMediaSdkModule(reactContext: ReactApplicationContext) :
@@ -56,13 +59,20 @@ class TruvideoReactTurboMediaSdkModule(reactContext: ReactApplicationContext) :
     }
   }
 
+
+
   fun returnRequest(request : TruvideoSdkMediaFileUploadRequest) : String{
     return JSONObject().apply {
       put("id", request.id)
       put("filePath", request.filePath)
       put("fileType", request.type)
-      put("createdAt", request.createdAt )
-      put("updateAt",request.updatedAt)
+      if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+        put("createdAt", DateTimeFormatter.ISO_INSTANT.format(request.createdAt.toInstant()) )
+        put("updateAt",DateTimeFormatter.ISO_INSTANT.format(request.updatedAt.toInstant()))
+      }else{
+        put("createdAt", request.createdAt )
+        put("updateAt",request.updatedAt)
+      }
       put("tags" , request.tags)
       put("metadata", request.metadata)
       put("durationMilliseconds", request.durationMilliseconds)
