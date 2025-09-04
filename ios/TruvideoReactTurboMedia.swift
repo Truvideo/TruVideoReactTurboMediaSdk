@@ -35,8 +35,8 @@ import React
             "id": request.id.uuidString, // Generate a unique ID for the event
             "filePath": request.filePath,
             "fileType": request.fileType.rawValue,
-            "createdAt" : dateFormatter.string(from: request.createdAt!),
-            "updatedAt" : dateFormatter.string(from: request.updatedAt!),
+            "createdAt" : request.createdAt != nil ? dateFormatter.string(from: request.createdAt!) : "",
+            "updatedAt" : request.updatedAt != nil ? dateFormatter.string(from: request.updatedAt!) : "",
             "tags" : tagString,
             "metadata" : metadataString,
             "durationMilliseconds":  "\(String(describing: request.durationMilliseconds))",
@@ -200,8 +200,8 @@ import React
         "id": request.id.uuidString, // Generate a unique ID for the event
         "filePath": request.filePath,
         "fileType": request.fileType.rawValue,
-        "createdAt" : dateFormatter.string(from: request.createdAt!),
-        "updatedAt" : dateFormatter.string(from: request.updatedAt!),
+        "createdAt" : request.createdAt != nil ? dateFormatter.string(from: request.createdAt!) : "",
+        "updatedAt" : request.updatedAt != nil ? dateFormatter.string(from: request.updatedAt!) : "",
         "tags" : tagString,
         "metadata" : metadataString,
         "durationMilliseconds":  "\(String(describing: request.durationMilliseconds))",
