@@ -18,6 +18,7 @@ import org.json.JSONArray
 import org.json.JSONObject
 import truvideo.sdk.common.exceptions.TruvideoSdkException
 import java.time.format.DateTimeFormatter
+import kotlin.io.path.Path
 
 @ReactModule(name = TruvideoReactTurboMediaSdkModule.NAME)
 class TruvideoReactTurboMediaSdkModule(reactContext: ReactApplicationContext) :
@@ -213,7 +214,11 @@ class TruvideoReactTurboMediaSdkModule(reactContext: ReactApplicationContext) :
 
           val jsonObject = JSONObject().apply {
             put("id", item.id)
-            put("createdDate", item.createdDate)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+              put("createdDate", DateTimeFormatter.ISO_INSTANT.format(item.createdDate.toInstant()))
+            }else {
+              put("createdDate", item.createdDate)
+            }
             put("remoteId", item.id)
             put("uploadedFileURL", item.url)
             put("metaData", metadataObj) // assuming toJson() returns JSON string
@@ -281,7 +286,7 @@ class TruvideoReactTurboMediaSdkModule(reactContext: ReactApplicationContext) :
             }
             val mainResponse = JSONObject().apply {
               put("id", id) // Generate a unique ID for the event
-              put("createdDate", response.createdAt)
+              put("createdDate", if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) DateTimeFormatter.ISO_INSTANT.format(response.createdAt.toInstant()) else response.createdAt)
               put("remoteId", response.remoteId)
               put("uploadedFileURL", response.remoteUrl)
               put("metaData", metadataObj) // if toJson() is JSON string
