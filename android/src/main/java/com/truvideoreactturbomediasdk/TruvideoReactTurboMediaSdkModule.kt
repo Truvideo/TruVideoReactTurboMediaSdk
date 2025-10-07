@@ -286,68 +286,78 @@ class TruvideoReactTurboMediaSdkModule(reactContext: ReactApplicationContext) :
 
   override fun uploadMedia(id: String,promise: Promise){
     try{
-      scope.launch {
-        val request = TruvideoSdkMedia.getFileUploadRequestById(id)
-        val file = File(request!!.filePath)
-        if(!file.exists()){
-          promise.reject("File Exceptions","File not found")
-        }else{
-          request.upload(object:
-            TruvideoSdkMediaCallback<Unit> {
-            override fun onComplete(data: Unit) {
+        TruvideoSdkMedia.getFileUploadRequestById(id,object:
+          TruvideoSdkMediaCallback<TruvideoSdkMediaFileUploadRequest?> {
+          override fun onComplete(data: TruvideoSdkMediaFileUploadRequest?) {
+            if(data == null){
+              promise.reject("File Exceptions","File Exceptions")
             }
-            override fun onError(exception: TruvideoSdkException) {
-              promise.reject("TruvideoSdkException",exception.message)
-            }
-          },object : TruvideoSdkMediaFileUploadCallback {
-            override fun onComplete(id: String, response: TruvideoSdkMediaFileUploadRequest) {
-              // Handle completion
-              val metadataObj = JSONObject()
-              response.metadata.map.keys.forEach { key ->
-                metadataObj.put(key, response.metadata.map[key])
-              }
-              val tagsObj = JSONObject()
-              response.tags.map.keys.forEach { key ->
-                tagsObj.put(key, response.tags.map[key])
-              }
-              val mainResponse = JSONObject().apply {
-                put("id", id) // Generate a unique ID for the event
-                put("createdDate", if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) DateTimeFormatter.ISO_INSTANT.format(response.createdAt.toInstant()) else response.createdAt)
-                put("remoteId", response.remoteId)
-                put("uploadedFileURL", response.remoteUrl)
-                put("metaData", metadataObj) // if toJson() is JSON string
-                put("tags", tagsObj) // or JSONArray if tags is a list
-                put("transcriptionURL", response.transcriptionUrl)
-                put("transcriptionLength", response.transcriptionLength)
-                put("fileType", response.type.name)
-              }
-              promise.resolve(mainResponse.toString())
-              sendEvent(reactApplicationContext,"onComplete",mainResponse.toString())
-            }
+            val file = File(data!!.filePath)
+            if(!file.exists()){
+              promise.reject("File Exceptions","File not found")
+            }else{
+              data.upload(object:
+                TruvideoSdkMediaCallback<Unit> {
+                override fun onComplete(data: Unit) {
+                }
+                override fun onError(exception: TruvideoSdkException) {
+                  promise.reject("TruvideoSdkException",exception.message)
+                }
+              },object : TruvideoSdkMediaFileUploadCallback {
+                override fun onComplete(id: String, response: TruvideoSdkMediaFileUploadRequest) {
+                  // Handle completion
+                  val metadataObj = JSONObject()
+                  response.metadata.map.keys.forEach { key ->
+                    metadataObj.put(key, response.metadata.map[key])
+                  }
+                  val tagsObj = JSONObject()
+                  response.tags.map.keys.forEach { key ->
+                    tagsObj.put(key, response.tags.map[key])
+                  }
+                  val mainResponse = JSONObject().apply {
+                    put("id", id) // Generate a unique ID for the event
+                    put("createdDate", if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) DateTimeFormatter.ISO_INSTANT.format(response.createdAt.toInstant()) else response.createdAt)
+                    put("remoteId", response.remoteId)
+                    put("uploadedFileURL", response.remoteUrl)
+                    put("metaData", metadataObj) // if toJson() is JSON string
+                    put("tags", tagsObj) // or JSONArray if tags is a list
+                    put("transcriptionURL", response.transcriptionUrl)
+                    put("transcriptionLength", response.transcriptionLength)
+                    put("fileType", response.type.name)
+                  }
+                  promise.resolve(mainResponse.toString())
+                  sendEvent(reactApplicationContext,"onComplete",mainResponse.toString())
+                }
 
-            override fun onProgressChanged(id: String, progress: Float) {
-              // Handle progress
+                override fun onProgressChanged(id: String, progress: Float) {
+                  // Handle progress
 
-              val mainResponse = JSONObject().apply {
-                put("id", id) // Generate a unique ID for the event
-                put("progress",  (progress*100))
-              }
-              sendEvent(reactApplicationContext,"onProgress",mainResponse.toString())
+                  val mainResponse = JSONObject().apply {
+                    put("id", id) // Generate a unique ID for the event
+                    put("progress",  (progress*100))
+                  }
+                  sendEvent(reactApplicationContext,"onProgress",mainResponse.toString())
+                }
+
+                override fun onError(id: String, ex: TruvideoSdkException) {
+                  // Handle error
+
+                  val mainResponse = JSONObject().apply {
+                    put("id", id) // Generate a unique ID for the event
+                    put("error",  ex)
+                  }
+                  sendEvent(reactApplicationContext,"onError",mainResponse.toString())
+                  promise.reject(id,ex.message,ex)
+                }
+              })
             }
+          }
+          override fun onError(exception: TruvideoSdkException) {
+            promise.reject("TruvideoSdkException",exception.message)
+          }
+        })
 
-            override fun onError(id: String, ex: TruvideoSdkException) {
-              // Handle error
 
-              val mainResponse = JSONObject().apply {
-                put("id", id) // Generate a unique ID for the event
-                put("error",  ex)
-              }
-              sendEvent(reactApplicationContext,"onError",mainResponse.toString())
-              promise.reject(id,ex.message,ex)
-            }
-          })
-        }
-      }
     }catch (e: Exception){
       promise.reject("Exception",e.message)
     }
