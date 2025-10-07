@@ -1,7 +1,6 @@
 package com.truvideoreactturbomediasdk
 
 import android.os.Build
-import androidx.annotation.RequiresApi
 import com.facebook.react.bridge.Promise
 import com.facebook.react.bridge.ReactApplicationContext
 import com.facebook.react.module.annotations.ReactModule
@@ -17,8 +16,8 @@ import kotlinx.coroutines.launch
 import org.json.JSONArray
 import org.json.JSONObject
 import truvideo.sdk.common.exceptions.TruvideoSdkException
+import java.io.File
 import java.time.format.DateTimeFormatter
-import kotlin.io.path.Path
 
 @ReactModule(name = TruvideoReactTurboMediaSdkModule.NAME)
 class TruvideoReactTurboMediaSdkModule(reactContext: ReactApplicationContext) :
@@ -36,8 +35,12 @@ class TruvideoReactTurboMediaSdkModule(reactContext: ReactApplicationContext) :
 
   override fun mediaBuilder(filePath: String?, tag: String?, metaData: String?, promise: Promise?) {
     try {
+      val file = File(filePath!!)
+      if(!file.exists()){
+        promise!!.reject("File Exceptions","File not found")
+      }
       CoroutineScope(Dispatchers.Main).launch {
-        builder(filePath!!,tag!!,metaData!!,promise!!)
+        builder(filePath,tag!!,metaData!!,promise!!)
       }
     }catch (e : Exception){
       promise!!.reject("Exception",e.message)
@@ -273,7 +276,11 @@ class TruvideoReactTurboMediaSdkModule(reactContext: ReactApplicationContext) :
     try{
       scope.launch {
         val request = TruvideoSdkMedia.getFileUploadRequestById(id)
-        request!!.upload(object : TruvideoSdkMediaFileUploadCallback {
+        val file = File(request!!.filePath)
+        if(!file.exists()){
+          promise.reject("File Exceptions","File not found")
+        }
+        request.upload(object : TruvideoSdkMediaFileUploadCallback {
           override fun onComplete(id: String, response: TruvideoSdkMediaFileUploadRequest) {
             // Handle completion
             val metadataObj = JSONObject()

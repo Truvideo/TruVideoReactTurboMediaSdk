@@ -444,7 +444,7 @@ import React
                   "tags":  tags.dictionary,
                   "transcriptionURL": transcriptionURL?.absoluteString ?? "",
                   "transcriptionLength": "\(transcriptionLength)",
-                  "fileType" : uploadedResult.type.rawValue
+                  "fileType" : uploadedResult.type.rawValue,
               ]
               let jsonData = try JSONSerialization.data(withJSONObject: mainResponse, options: [])
 

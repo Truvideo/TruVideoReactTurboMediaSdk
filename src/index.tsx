@@ -93,7 +93,7 @@ export async function search(
   page: number,
   pageSize: number,
   type?: MediaType,
-): Promise<UploadCompleteEventData | null> {
+): Promise<UploadCompleteEventData[] | null> {
   const typeData = type || MediaType.IMAGE;
   const tag = JSON.stringify(tags);
   return TruvideoReactTurboMediaSdk.search(
@@ -103,7 +103,7 @@ export async function search(
     pageSize.toString()
   ).then((response: string) => {
       try {
-        const parsed: UploadCompleteEventData = JSON.parse(response);
+        const parsed: UploadCompleteEventData[] = JSON.parse(response);
         return parsed;
       } catch (e) {
         console.error("Failed to parse MediaData JSON:", e);
