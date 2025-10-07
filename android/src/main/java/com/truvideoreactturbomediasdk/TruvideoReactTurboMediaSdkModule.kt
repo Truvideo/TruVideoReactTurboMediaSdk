@@ -292,7 +292,14 @@ class TruvideoReactTurboMediaSdkModule(reactContext: ReactApplicationContext) :
         if(!file.exists()){
           promise.reject("File Exceptions","File not found")
         }else{
-          request.upload(object : TruvideoSdkMediaFileUploadCallback {
+          request.upload(object:
+            TruvideoSdkMediaCallback<Unit> {
+            override fun onComplete(data: Unit) {
+            }
+            override fun onError(exception: TruvideoSdkException) {
+              promise.reject("TruvideoSdkException",exception.message)
+            }
+          },object : TruvideoSdkMediaFileUploadCallback {
             override fun onComplete(id: String, response: TruvideoSdkMediaFileUploadRequest) {
               // Handle completion
               val metadataObj = JSONObject()
