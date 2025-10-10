@@ -111,7 +111,7 @@ dependencies {
   //noinspection GradleDynamicVersion
   implementation "com.facebook.react:react-native:+"
   implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
-  implementation 'com.github.Truvideo:truvideo-sdk-android-media:78.1.9-rc.113'
+  implementation 'com.github.Truvideo:truvideo-sdk-android-media:78.1.4'
 }
 
 if (isNewArchitectureEnabled()) {
