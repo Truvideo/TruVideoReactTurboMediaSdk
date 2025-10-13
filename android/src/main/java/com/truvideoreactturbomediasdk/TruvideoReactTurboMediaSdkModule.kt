@@ -11,6 +11,7 @@ import com.truvideo.sdk.media.model.TruvideoSdkMediaFileType
 import com.truvideo.sdk.media.model.TruvideoSdkMediaFileUploadRequest
 import com.truvideo.sdk.media.model.TruvideoSdkMediaFileUploadStatus
 import com.truvideo.sdk.media.model.TruvideoSdkMediaTags
+import com.truvideo.sdk.media.util.toIsoString
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -75,13 +76,8 @@ class TruvideoReactTurboMediaSdkModule(reactContext: ReactApplicationContext) :
       put("id", request.id)
       put("filePath", request.filePath)
       put("fileType", request.type)
-      if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-        put("createdAt", DateTimeFormatter.ISO_INSTANT.format(request.createdAt.toInstant()) )
-        put("updateAt",DateTimeFormatter.ISO_INSTANT.format(request.updatedAt.toInstant()))
-      }else{
-        put("createdAt", request.createdAt )
-        put("updateAt",request.updatedAt)
-      }
+      put("createdAt", request.createdAt.toIsoString() )
+      put("updateAt",request.updatedAt.toIsoString())
       put("tags" , request.tags)
       put("metadata", request.metadata)
       put("durationMilliseconds", request.durationMilliseconds)
@@ -224,11 +220,7 @@ class TruvideoReactTurboMediaSdkModule(reactContext: ReactApplicationContext) :
 
           val jsonObject = JSONObject().apply {
             put("id", item.id)
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-              put("createdDate", DateTimeFormatter.ISO_INSTANT.format(item.createdDate.toInstant()))
-            }else {
-              put("createdDate", item.createdDate)
-            }
+            put("createdDate", item.createdDate.toIsoString())
             put("remoteId", item.id)
             put("uploadedFileURL", item.url)
             put("metaData", metadataObj) // assuming toJson() returns JSON string
@@ -318,7 +310,7 @@ class TruvideoReactTurboMediaSdkModule(reactContext: ReactApplicationContext) :
                   }
                   val mainResponse = JSONObject().apply {
                     put("id", id) // Generate a unique ID for the event
-                    put("createdDate", if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) DateTimeFormatter.ISO_INSTANT.format(response.createdAt.toInstant()) else response.createdAt)
+                    put("createdDate", response.createdAt.toIsoString())
                     put("remoteId", response.remoteId)
                     put("uploadedFileURL", response.remoteUrl)
                     put("metaData", metadataObj) // if toJson() is JSON string
