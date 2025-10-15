@@ -1,6 +1,6 @@
 {
   "name": "@trunpm/truvideo-react-turbo-media-sdk",
-  "version": "2.0.1",
+  "version": "2.1.0",
   "description": "Media Module",
   "source": "./src/index.tsx",
   "main": "./lib/commonjs/index.js",

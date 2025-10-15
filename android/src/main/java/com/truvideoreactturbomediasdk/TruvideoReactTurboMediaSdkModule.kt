@@ -70,6 +70,31 @@ class TruvideoReactTurboMediaSdkModule(reactContext: ReactApplicationContext) :
   }
 
 
+  fun returnRequestsJson(requests: List<TruvideoSdkMediaFileUploadRequest>): String {
+    val jsonArray = JSONArray()
+
+    for (request in requests) {
+      val jsonObject = JSONObject().apply {
+        put("id", request.id)
+        put("filePath", request.filePath)
+        put("fileType", request.type)
+        put("createdAt", request.createdAt.toIsoString())
+        put("updateAt", request.updatedAt.toIsoString())
+        put("tags", request.tags)
+        put("metadata", request.metadata)
+        put("durationMilliseconds", request.durationMilliseconds)
+        put("remoteId", request.remoteId)
+        put("remoteURL", request.remoteUrl)
+        put("transcriptionURL", request.transcriptionUrl)
+        put("transcriptionLength", request.transcriptionLength)
+        put("status", request.status)
+        put("progress", request.uploadProgress)
+      }
+      jsonArray.put(jsonObject)
+    }
+
+    return jsonArray.toString()
+  }
 
   fun returnRequest(request : TruvideoSdkMediaFileUploadRequest) : String{
     return JSONObject().apply {
@@ -95,7 +120,7 @@ class TruvideoReactTurboMediaSdkModule(reactContext: ReactApplicationContext) :
       scope.launch {
         if(status == ""){
           val request = TruvideoSdkMedia.getAllFileUploadRequests()
-          promise!!.resolve(request)
+          promise!!.resolve(returnRequestsJson(request))
         }else{
           val mainStatus : TruvideoSdkMediaFileUploadStatus? = when(status) {
             "UPLOADING" -> TruvideoSdkMediaFileUploadStatus.UPLOADING
@@ -108,7 +133,7 @@ class TruvideoReactTurboMediaSdkModule(reactContext: ReactApplicationContext) :
             else -> null
           }
           val request = TruvideoSdkMedia.getAllFileUploadRequests(mainStatus)
-          promise!!.resolve(request)
+          promise!!.resolve(returnRequestsJson(request))
         }
       }
     }catch (e: Exception){
