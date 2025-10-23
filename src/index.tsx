@@ -46,11 +46,12 @@ export interface UploadCallbacks {
   onError?: (event: UploadErrorEvent) => void;
 }
 
-export async function getFileUploadRequestById(id: string): Promise<MediaData | null> {
+export async function getFileUploadRequestById(id: string): Promise<MediaRequest | null> {
   return TruvideoReactTurboMediaSdk.getFileUploadRequestById(id).then((response: string) => {
       try {
         const parsed: MediaData = JSON.parse(response);
-        return parsed;
+        const mediaRequest = new MediaRequest(parsed);
+        return mediaRequest;
       } catch (e) {
         console.error("Failed to parse MediaData JSON:", e);
         return null;
@@ -68,13 +69,21 @@ export enum UploadRequestStatus {
   SYNCHRONIZING ="SYNCHRONIZING",
 }
 
-export async function getAllFileUploadRequests(status?: UploadRequestStatus): Promise<MediaData[]> {
-  
+//const requestList : MediaRequest[] = [];
+export async function getAllFileUploadRequests(status?: UploadRequestStatus): Promise<MediaRequest[]> {
   return TruvideoReactTurboMediaSdk.getAllFileUploadRequests(status || '')
     .then((response: string) => {
       try {
         const parsed: MediaData[] = JSON.parse(response);
-        return parsed;
+        const requestList: MediaRequest[] = [];
+        parsed.forEach((data) => {
+          const existingRequest = requestList.find(request => request.id === data.id);
+          if (!existingRequest) {
+            const newRequest = new MediaRequest(data);
+            requestList.push(newRequest);
+          }
+        });
+        return requestList;
       } catch (e) {
         console.error("Failed to parse MediaData JSON:", e);
         return [];
@@ -281,4 +290,148 @@ export class MediaBuilder {
     this.listeners = [];
     this.currentUploadId = undefined;
   }
+}
+
+export class MediaRequest {
+  id: string;
+  filePath: string;
+  fileType: string;
+  createdAt: string;
+  updatedAt: string;
+  tags: string;
+  metaData: string;
+  durationMilliseconds: number;
+  remoteId: string;
+  remoteURL: string;
+  transcriptionURL: string;
+  transcriptionLength: number;
+  status: string;
+  progress: number;
+  private listeners: any[] = []; // To store event listener subscriptions
+  constructor(data: MediaData) {
+    this.id = data.id;
+    this.filePath = data.filePath;
+    this.fileType = data.fileType;
+    this.createdAt = data.createdAt;
+    this.updatedAt = data.updatedAt;
+    this.tags = data.tags;
+    this.metaData = data.metaData;
+    this.durationMilliseconds = data.durationMilliseconds;
+    this.remoteId = data.remoteId;
+    this.remoteURL = data.remoteURL;
+    this.transcriptionURL = data.transcriptionURL;
+    this.transcriptionLength = data.transcriptionLength;
+    this.status = data.status;
+    this.progress = data.progress;
+  }
+  updateData(data: MediaData): void { 
+    this.filePath = data.filePath;
+    this.fileType = data.fileType;
+    this.createdAt = data.createdAt;
+    this.updatedAt = data.updatedAt;
+    this.tags = data.tags;
+    this.metaData = data.metaData;
+    this.durationMilliseconds = data.durationMilliseconds;
+    this.remoteId = data.remoteId;
+    this.remoteURL = data.remoteURL;
+    this.transcriptionURL = data.transcriptionURL;
+    this.transcriptionLength = data.transcriptionLength;
+    this.status = data.status;
+    this.progress = data.progress;
+  }
+
+  cancel(): Promise<string> {
+    if (this.id === undefined) {
+      return Promise.reject(
+        new Error('Cannot cancel: mediaDetail is undefined.')
+      );
+    }
+    return TruvideoReactTurboMediaSdk.cancelMedia(this.id);
+  }
+  delete(): Promise<string> {
+    if (this.id === undefined) {
+      return Promise.reject(
+        new Error('Cannot delete: mediaDetail is undefined.')
+      );
+    }
+    return TruvideoReactTurboMediaSdk.deleteMedia(this.id);
+  }
+  pause(): Promise<string> {
+    if (this.id === undefined) {
+      return Promise.reject(
+        new Error('Cannot pause: mediaDetail is undefined.')
+      );
+    }
+    return TruvideoReactTurboMediaSdk.pauseMedia(this.id);
+  }
+  resume(): Promise<string> {
+    if (this.id === undefined) {
+      return Promise.reject(
+        new Error('Cannot resume: mediaDetail is undefined.')
+      );
+    }
+    return TruvideoReactTurboMediaSdk.resumeMedia(this.id);
+  }
+
+  async upload(callbacks: UploadCallbacks): Promise<UploadCompleteEventData | null> {
+    if (this.id === undefined) {
+      return Promise.reject(
+        new Error('Cannot upload: mediaDetail is undefined.')
+      );
+    }
+
+    this.removeEventListeners();
+  
+    // ✅ Use DeviceEventEmitter instead of NativeEventEmitter
+    this.listeners.push(
+      DeviceEventEmitter.addListener('onProgress', (eventJson: string) => {
+        const event: UploadProgressEvent = JSON.parse(eventJson);
+        if (event.id === this.id && callbacks?.onProgress) {
+          callbacks.onProgress(event);
+        }
+      })
+    );
+
+    this.listeners.push(
+      DeviceEventEmitter.addListener('onComplete', (eventJson: string) => {
+        const event: UploadCompleteEventData = JSON.parse(eventJson);
+        if (event.id === this.id && callbacks?.onComplete) {
+          if (event.metaData && typeof event.metaData === 'string') {
+            event.metaData = JSON.parse(event.metaData);
+          }
+          if (event.tags && typeof event.tags === 'string') {
+            event.tags = JSON.parse(event.tags);
+          }
+          callbacks.onComplete(event);
+        }
+        this.removeEventListeners();
+      })
+    );
+
+    this.listeners.push(
+      DeviceEventEmitter.addListener('onError', (eventJson: string) => {
+        const event: UploadErrorEvent = JSON.parse(eventJson);
+        if (event.id === this.id && callbacks?.onError) {
+          callbacks.onError(event);
+        }
+        this.removeEventListeners();
+      })
+    );
+
+    return TruvideoReactTurboMediaSdk.uploadMedia(this.id).then((response: string) => {
+      try {
+        const parsed: UploadCompleteEventData = JSON.parse(response);
+        return parsed;
+      } catch (e) {
+        console.error("Failed to parse MediaData JSON:", e);
+        return null;
+      }
+    });
+  }
+
+  removeEventListeners(): void {
+    this.listeners.forEach((listener) => listener.remove());
+    this.listeners = [];
+  }
+
 }
