@@ -34,6 +34,21 @@ export interface UploadCompleteEventData {
   fileType?: string;
 }
 
+
+export interface SearchData {
+  id: string;
+  createdDate?: string;
+  remoteId?: string;
+  uploadedFileURL?: string;
+  metaData?: string; 
+  tags?: string;
+  transcriptionURL?: string;
+  transcriptionLength?: number;
+  fileType?: string;
+  thumbnailUrl?: string;
+  previewUrl?: string;
+}
+
 export interface UploadErrorEvent {
   id: string;
   error: any;
@@ -102,7 +117,7 @@ export async function search(
   page: number,
   pageSize: number,
   type?: MediaType,
-): Promise<UploadCompleteEventData[] | null> {
+): Promise<SearchData[] | null> {
   const typeData = type || MediaType.IMAGE;
   const tag = JSON.stringify(tags);
   return TruvideoReactTurboMediaSdk.search(

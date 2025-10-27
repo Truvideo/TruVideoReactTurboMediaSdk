@@ -372,7 +372,9 @@ import React
               "tags": media.tags.dictionary,          // must return [String: Any]
               "transcriptionURL": media.transcriptionURL?.absoluteString ?? "",
               "transcriptionLength": "\(media.transcriptionLength)",
-              "fileType": media.type.rawValue
+              "fileType": media.type.rawValue,
+              "thumbnailUrl": media.thumbnailUrl?.absoluteString ?? "",
+              "previewUrl" : media.previewUrl?.absoluteString ?? ""
             ]
             let jsonData = try JSONSerialization.data(withJSONObject: mediaDict, options: [])
             if let jsonString = String(data: jsonData, encoding: .utf8) {

@@ -1,10 +1,10 @@
 package com.truvideoreactturbomediasdk
 
-import android.os.Build
 import com.facebook.react.bridge.Promise
 import com.facebook.react.bridge.ReactApplicationContext
 import com.facebook.react.module.annotations.ReactModule
-import com.facebook.react.modules.core.DeviceEventManagerModule import com.truvideo.sdk.media.TruvideoSdkMedia
+import com.facebook.react.modules.core.DeviceEventManagerModule
+import com.truvideo.sdk.media.TruvideoSdkMedia
 import com.truvideo.sdk.media.interfaces.TruvideoSdkMediaCallback
 import com.truvideo.sdk.media.interfaces.TruvideoSdkMediaFileUploadCallback
 import com.truvideo.sdk.media.model.TruvideoSdkMediaFileType
@@ -19,7 +19,6 @@ import org.json.JSONArray
 import org.json.JSONObject
 import truvideo.sdk.common.exceptions.TruvideoSdkException
 import java.io.File
-import java.time.format.DateTimeFormatter
 
 @ReactModule(name = TruvideoReactTurboMediaSdkModule.NAME)
 class TruvideoReactTurboMediaSdkModule(reactContext: ReactApplicationContext) :
@@ -253,6 +252,8 @@ class TruvideoReactTurboMediaSdkModule(reactContext: ReactApplicationContext) :
             put("transcriptionURL", item.transcriptionUrl)
             put("transcriptionLength", item.transcriptionLength)
             put("fileType", item.type.name)
+            put("thumbnailUrl", item.thumbnailUrl)
+            put("previewUrl", item.previewUrl)
           }
           jsonArray.put(jsonObject)
         }
