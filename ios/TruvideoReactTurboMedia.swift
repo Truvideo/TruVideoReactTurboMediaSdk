@@ -45,7 +45,7 @@ import React
             "remoteURL" : request.remoteURL?.absoluteString ?? "",
             "transcriptionURL" : request.transcriptionURL ?? "",
             "transcriptionLength" : "\(String(describing: request.transcriptionLength))" ,
-            "status" : "\(request.status.rawValue)",
+            "status" : getStringStatus(status: request.status),
             "progress" : "\(request.uploadProgress)"
           ]
 
@@ -211,7 +211,7 @@ import React
         "remoteURL" : request.remoteURL?.absoluteString ?? "",
         "transcriptionURL" : request.transcriptionURL ?? "",
         "transcriptionLength" : "\(String(describing: request.transcriptionLength))" ,
-        "status" : "\(request.status.rawValue)",
+        "status" : getStringStatus(status: request.status),
         "progress" : "\(request.uploadProgress)"
       ]
       let jsonData = try JSONSerialization.data(withJSONObject: mainResponse, options: [])
@@ -282,7 +282,7 @@ import React
                   "remoteURL": request.remoteURL?.absoluteString ?? "",
                   "transcriptionURL": request.transcriptionURL ?? "",
                   "transcriptionLength": "\(String(describing: request.transcriptionLength))",
-                  "status": "\(request.status.rawValue)",
+                  "status": getStringStatus(status: request.status),
                   "progress": "\(request.uploadProgress)"
               ]
 
@@ -305,6 +305,29 @@ import React
     //TruvideoSdkMedia.FileUploadRequestBuilder(fileURL: fileURL)
   }
 
+  func getStringStatus(status : TruvideoSdkMedia.TruvideoSdkMediaUploadRequest.Status?) -> String{
+    return switch status {
+    case .idle:
+        "IDLE"
+    case .completed:
+        "COMPLETED"
+    case .cancelled:
+        "CANCELED"
+    case .paused:
+        "PAUSED"
+    case .synchronizing:
+        "SYNCHRONIZING"
+    case .processing:
+        "UPLOADING"
+    case .error:
+        "ERROR"
+    case .none:
+      "IDLE"
+    @unknown default:
+      ""
+    }
+  }
+  
   @objc public func cancelMedia(id: String, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock){
     let request = try? TruvideoSdkMedia.getFileUploadRequest(withId : id)
     try? request?.cancel()
