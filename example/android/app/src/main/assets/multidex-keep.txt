@@ -1,0 +1,3 @@
+-keep class org.kodein.di.** { *; }
+-keep interface org.kodein.di.** { *; }
+-keep class com.truvideo.sdk.media.** { *; }

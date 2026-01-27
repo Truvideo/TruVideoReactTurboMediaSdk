@@ -1,0 +1,68 @@
+2026-01-27 13:46:00.406  3862-4940  SatelliteAppTracker     com.android.phone                    E  packageName: truvideoreactturbomediasdk.example, value: null
+2026-01-27 13:46:00.406  3862-4940  SatelliteAppTracker     com.android.phone                    E  packageName: truvideoreactturbomediasdk.example, value: null
+2026-01-27 13:46:00.443  3862-4940  SatelliteAppTracker     com.android.phone                    E  packageName: truvideoreactturbomediasdk.example, value: null
+2026-01-27 13:46:00.443  3862-4940  SatelliteAppTracker     com.android.phone                    E  packageName: truvideoreactturbomediasdk.example, value: null
+---------------------------- PROCESS STARTED (417) for package truvideoreactturbomediasdk.example ----------------------------
+2026-01-27 13:46:00.684   417-417   nativeloader            truvideoreactturbomediasdk.example   D  Load libframework-connectivity-tiramisu-jni.so using APEX ns com_android_tethering for caller /apex/com.android.tethering/javalib/framework-connectivity-t.jar: ok
+2026-01-27 13:46:00.686   417-417   ActivityThread          truvideoreactturbomediasdk.example   D  setConscryptValidator
+2026-01-27 13:46:00.686   417-417   ActivityThread          truvideoreactturbomediasdk.example   D  setConscryptValidator - put
+2026-01-27 13:46:00.694   417-417   CompatChangeReporter    truvideoreactturbomediasdk.example   D  Compat change id reported: 242716250; UID 10518; state: ENABLED
+2026-01-27 13:46:00.699   417-417   ApplicationLoaders      truvideoreactturbomediasdk.example   D  Returning zygote-cached class loader: /system/framework/org.apache.http.legacy.jar
+2026-01-27 13:46:00.845   417-417   nativeloader            truvideoreactturbomediasdk.example   D  Configuring clns-9 for other apk /data/app/~~YQWGssJBkPDegsLKBWIZGA==/truvideoreactturbomediasdk.example-Qq54u_xKwmKjrkWa0vALHA==/base.apk. target_sdk_version=34, uses_libraries=, library_path=/data/app/~~YQWGssJBkPDegsLKBWIZGA==/truvideoreactturbomediasdk.example-Qq54u_xKwmKjrkWa0vALHA==/lib/arm64:/data/app/~~YQWGssJBkPDegsLKBWIZGA==/truvideoreactturbomediasdk.example-Qq54u_xKwmKjrkWa0vALHA==/base.apk!/lib/arm64-v8a, permitted_path=/data:/mnt/expand:/data/user/0/truvideoreactturbomediasdk.example
+2026-01-27 13:46:00.849   417-417   GraphicsEnvironment     truvideoreactturbomediasdk.example   V  Currently set values for:
+2026-01-27 13:46:00.849   417-417   GraphicsEnvironment     truvideoreactturbomediasdk.example   V    angle_gl_driver_selection_pkgs=[]
+2026-01-27 13:46:00.849   417-417   GraphicsEnvironment     truvideoreactturbomediasdk.example   V    angle_gl_driver_selection_values=[]
+2026-01-27 13:46:00.849   417-417   GraphicsEnvironment     truvideoreactturbomediasdk.example   V  truvideoreactturbomediasdk.example is not listed in per-application setting
+2026-01-27 13:46:00.849   417-417   GraphicsEnvironment     truvideoreactturbomediasdk.example   V  ANGLE allowlist from config: 
+2026-01-27 13:46:00.850   417-417   GraphicsEnvironment     truvideoreactturbomediasdk.example   V  truvideoreactturbomediasdk.example is not listed in ANGLE allowlist or settings, returning default
+2026-01-27 13:46:00.850   417-417   GraphicsEnvironment     truvideoreactturbomediasdk.example   V  App is not on the allowlist for updatable production driver.
+2026-01-27 13:46:00.866   417-417   MultiDex                truvideoreactturbomediasdk.example   I  VM with version 2.1.0 has multidex support
+2026-01-27 13:46:00.866   417-417   MultiDex                truvideoreactturbomediasdk.example   I  Installing application
+2026-01-27 13:46:00.866   417-417   MultiDex                truvideoreactturbomediasdk.example   I  VM has multidex support, MultiDex support library is disabled.
+2026-01-27 13:46:00.866   417-417   MultiDex                truvideoreactturbomediasdk.example   I  Installing application
+2026-01-27 13:46:00.866   417-417   MultiDex                truvideoreactturbomediasdk.example   I  VM has multidex support, MultiDex support library is disabled.
+2026-01-27 13:46:00.880   417-417   AndroidRuntime          truvideoreactturbomediasdk.example   D  Shutting down VM
+2026-01-27 13:46:00.882   417-417   AndroidRuntime          truvideoreactturbomediasdk.example   E  FATAL EXCEPTION: main (Ask Gemini)
+                                                                                                    Process: truvideoreactturbomediasdk.example, PID: 417
+                                                                                                    java.lang.RuntimeException: Unable to get provider androidx.startup.InitializationProvider: androidx.startup.StartupException: java.lang.NoSuchMethodError: No static method importAll$default(Lorg/kodein/di/DI$Builder;[Lorg/kodein/di/DI$Module;ZILjava/lang/Object;)V in class Lorg/kodein/di/DI$Builder; or its super classes (declaration of 'org.kodein.di.DI$Builder' appears in /data/app/~~YQWGssJBkPDegsLKBWIZGA==/truvideoreactturbomediasdk.example-Qq54u_xKwmKjrkWa0vALHA==/base.apk!classes6.dex)
+                                                                                                    	at android.app.ActivityThread.installProvider(ActivityThread.java:9598)
+                                                                                                    	at android.app.ActivityThread.installContentProviders(ActivityThread.java:9095)
+                                                                                                    	at android.app.ActivityThread.handleBindApplication(ActivityThread.java:8713)
+                                                                                                    	at android.app.ActivityThread.-$$Nest$mhandleBindApplication(Unknown Source:0)
+                                                                                                    	at android.app.ActivityThread$H.handleMessage(ActivityThread.java:2873)
+                                                                                                    	at android.os.Handler.dispatchMessage(Handler.java:110)
+                                                                                                    	at android.os.Looper.loopOnce(Looper.java:273)
+                                                                                                    	at android.os.Looper.loop(Looper.java:363)
+                                                                                                    	at android.app.ActivityThread.main(ActivityThread.java:10060)
+                                                                                                    	at java.lang.reflect.Method.invoke(Native Method)
+                                                                                                    	at com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:632)
+                                                                                                    	at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:975)
+                                                                                                    Caused by: androidx.startup.StartupException: java.lang.NoSuchMethodError: No static method importAll$default(Lorg/kodein/di/DI$Builder;[Lorg/kodein/di/DI$Module;ZILjava/lang/Object;)V in class Lorg/kodein/di/DI$Builder; or its super classes (declaration of 'org.kodein.di.DI$Builder' appears in /data/app/~~YQWGssJBkPDegsLKBWIZGA==/truvideoreactturbomediasdk.example-Qq54u_xKwmKjrkWa0vALHA==/base.apk!classes6.dex)
+                                                                                                    	at androidx.startup.AppInitializer.doInitialize(AppInitializer.java:187)
+                                                                                                    	at androidx.startup.AppInitializer.discoverAndInitialize(AppInitializer.java:239)
+                                                                                                    	at androidx.startup.AppInitializer.discoverAndInitialize(AppInitializer.java:207)
+                                                                                                    	at androidx.startup.InitializationProvider.onCreate(InitializationProvider.java:49)
+                                                                                                    	at android.content.ContentProvider.attachInfo(ContentProvider.java:2710)
+                                                                                                    	at android.content.ContentProvider.attachInfo(ContentProvider.java:2679)
+                                                                                                    	at android.app.ActivityThread.installProvider(ActivityThread.java:9593)
+                                                                                                    	... 11 more
+                                                                                                    Caused by: java.lang.NoSuchMethodError: No static method importAll$default(Lorg/kodein/di/DI$Builder;[Lorg/kodein/di/DI$Module;ZILjava/lang/Object;)V in class Lorg/kodein/di/DI$Builder; or its super classes (declaration of 'org.kodein.di.DI$Builder' appears in /data/app/~~YQWGssJBkPDegsLKBWIZGA==/truvideoreactturbomediasdk.example-Qq54u_xKwmKjrkWa0vALHA==/base.apk!classes6.dex)
+                                                                                                    	at truvideo.sdk.common.di.TruvideoSdkContainer.di$lambda$0(TruvideoSdkContainer.kt:16)
+                                                                                                    	at truvideo.sdk.common.di.TruvideoSdkContainer.$r8$lambda$2PSnm90cU12jGk1bWAMz8jML4cc(Unknown Source:0)
+                                                                                                    	at truvideo.sdk.common.di.TruvideoSdkContainer$$ExternalSyntheticLambda0.invoke(D8$$SyntheticClass:0)
+                                                                                                    	at org.kodein.di.internal.DIImpl$Companion.newBuilder(DIImpl.kt:21)
+                                                                                                    	at org.kodein.di.internal.DIImpl$Companion.access$newBuilder(DIImpl.kt:20)
+                                                                                                    	at org.kodein.di.internal.DIImpl.<init>(DIImpl.kt:18)
+                                                                                                    	at org.kodein.di.DI$Companion.invoke(DI.kt:626)
+                                                                                                    	at org.kodein.di.DI$Companion.invoke$default(DI.kt:626)
+                                                                                                    	at truvideo.sdk.common.di.TruvideoSdkContainer.<clinit>(TruvideoSdkContainer.kt:15)
+                                                                                                    	at truvideo.sdk.common.TruvideoSdkCommonKt.<clinit>(TruvideoSdkCommon.kt:12)
+                                                                                                    	at com.truvideo.sdk.media.adapter.TruvideoSdkMediaLogAdapterImpl.addLog(TruvideoSdkMediaLogAdapterImpl.kt:13)
+                                                                                                    	at com.truvideo.sdk.media.TruvideoSdkMediaImpl.<init>(TruvideoSdkMediaImpl.kt:43)
+                                                                                                    	at com.truvideo.sdk.media.TruvideoSdkMediaInitializer$Companion.init(TruvideoSdkMediaInitializer.kt:56)
+                                                                                                    	at com.truvideo.sdk.media.TruvideoSdkMediaInitializer.create(TruvideoSdkMediaInitializer.kt:69)
+                                                                                                    	at com.truvideo.sdk.media.TruvideoSdkMediaInitializer.create(TruvideoSdkMediaInitializer.kt:14)
+2026-01-27 13:46:00.882   417-417   AndroidRuntime          truvideoreactturbomediasdk.example   E  	at androidx.startup.AppInitializer.doInitialize(AppInitializer.java:180)
+                                                                                                    	... 17 more
+2026-01-27 13:46:00.885   417-417   Process                 truvideoreactturbomediasdk.example   I  Sending signal. PID: 417 SIG: 9
+---------------------------- PROCESS ENDED (417) for package truvideoreactturbomediasdk.example ----------------------------

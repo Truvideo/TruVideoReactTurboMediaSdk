@@ -84,6 +84,22 @@ android {
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
         versionName "1.0"
+        // Ensure multidex is enabled if needed (though it should auto-enable for large apps)
+        multiDexEnabled true
+        // Keep Kodein DI classes in main dex to ensure they're available during ContentProvider initialization
+        multiDexKeepProguard file('src/main/assets/multidex-keep.txt')
+    }
+
+    packaging {
+        // Ensure all Kodein DI classes are included, especially JAR files
+        resources {
+            pickFirsts += ['**/libc++_shared.so', '**/libjsc.so']
+            excludes += ['META-INF/DEPENDENCIES', 'META-INF/LICENSE', 'META-INF/LICENSE.txt', 'META-INF/NOTICE', 'META-INF/NOTICE.txt']
+        }
+        // Ensure JAR files from dependencies are merged
+        jniLibs {
+            useLegacyPackaging = false
+        }
     }
     signingConfigs {
         debug {
@@ -96,6 +112,9 @@ android {
     buildTypes {
         debug {
             signingConfig signingConfigs.debug
+            // Ensure R8 doesn't strip classes even in debug builds
+            minifyEnabled false
+            shrinkResources false
         }
         release {
             // Caution! In production, you need to generate your own keystore file.
@@ -104,6 +123,41 @@ android {
             minifyEnabled enableProguardInReleaseBuilds
             proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
         }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+
+    // Explicitly set Kotlin language version to match truvideo SDK
+    tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
+        kotlinOptions {
+            jvmTarget = "17"
+            languageVersion = "2.2"
+            apiVersion = "2.2"
+        }
+    }
+}
+
+repositories {
+    mavenCentral()
+    google()
+    maven { url 'https://jitpack.io' }
+}
+
+def kodeinVersion = "7.28.0"
+
+configurations.all {
+
+    resolutionStrategy {
+        // Force Kodein DI version to ensure consistency
+        // DIAware interface was introduced in version 7.0.0, required by truvideo-sdk-android-media:79.1.2
+        // Use the same version the SDK was compiled with to avoid NoSuchMethodError on importAll$default
+        force "org.kodein.di:kodein-di:$kodeinVersion"
+        force "org.kodein.di:kodein-di-jvm:$kodeinVersion"
+        force "org.kodein.di:kodein-di-framework-android-core:$kodeinVersion"
+        force "org.kodein.di:kodein-di-framework-android-x:$kodeinVersion"
     }
 }
 
@@ -116,6 +170,18 @@ dependencies {
     } else {
         implementation jscFlavor
     }
+
+    // Multidex support
+    implementation 'androidx.multidex:multidex:2.0.1'
+
+    // Kodein DI is required by truvideo-sdk-android-media (version 7.3.0 contains DIAware interface and importAll API)
+    // DIAware interface is in kodein-di-core starting from version 7.0.0
+    // Include all Kodein DI modules to ensure DIAware is available at runtime
+    // Explicitly include all modules to ensure they're packaged in the APK
+    implementation "org.kodein.di:kodein-di:$kodeinVersion"
+    implementation "org.kodein.di:kodein-di-jvm:$kodeinVersion"
+    implementation "org.kodein.di:kodein-di-framework-android-core:$kodeinVersion"
+    implementation "org.kodein.di:kodein-di-framework-android-x:$kodeinVersion"
 }
 
 def isNewArchitectureEnabled() {

@@ -8,3 +8,8 @@
 #   http://developer.android.com/guide/developing/tools/proguard.html
 
 # Add any project specific keep options here:
+
+# Keep Kodein DI classes
+-keep class org.kodein.di.** { *; }
+-keep interface org.kodein.di.** { *; }
+-dontwarn org.kodein.di.**
