@@ -164,30 +164,77 @@ class TruvideoReactTurboMediaSdkModule(reactContext: ReactApplicationContext) :
     }
   }
 
-  override fun pauseMedia(id: String?, promise: Promise?) {
-    try{
-      scope.launch {
-        val request = TruvideoSdkMedia.getFileUploadRequestById(id!!)
-        request!!.pause()
-        promise!!.resolve("Pause Success")
-      }
-    }catch (e: Exception){
-      promise!!.reject("Exception",e.message)
-    }
-  }
+    override fun pauseMedia(id: String?, promise: Promise?) {
+        try {
+            scope.launch {
+                val request = TruvideoSdkMedia.getFileUploadRequestById(id!!)
 
-  override fun resumeMedia(id: String?, promise: Promise?) {
-    try{
-      scope.launch {
-        val request = TruvideoSdkMedia.getFileUploadRequestById(id!!)
-        request!!.resume()
-        promise!!.resolve("Resume Success")
-      }
-    }catch (e: Exception){
-      promise!!.reject("Exception",e.message)
-    }
-  }
+                if (request == null) {
+                    promise!!.reject("ERROR", "Upload request not found")
+                    return@launch
+                }
 
+                when (request.status) {
+                    TruvideoSdkMediaFileUploadStatus.UPLOADING -> {
+                        request.pause()
+                        promise!!.resolve("Pause Success")
+                    }
+                    TruvideoSdkMediaFileUploadStatus.PAUSED -> {
+                        promise!!.reject("ALREADY_PAUSED", "Upload is already paused")
+                    }
+                    TruvideoSdkMediaFileUploadStatus.COMPLETED -> {
+                        promise!!.reject("COMPLETED", "Upload is already completed")
+                    }
+                    else -> {
+                        promise!!.reject(
+                            "INVALID_STATE",
+                            "Cannot pause. Current status: ${request.status}"
+                        )
+                    }
+                }
+            }
+        } catch (e: TruvideoSdkException) {
+            promise!!.reject("TruvideoSdkException", e.message)
+        } catch (e: Exception) {
+            promise!!.reject("Exception", e.message)
+        }
+    }
+
+    override fun resumeMedia(id: String?, promise: Promise?) {
+        try {
+            scope.launch {
+                val request = TruvideoSdkMedia.getFileUploadRequestById(id!!)
+
+                if (request == null) {
+                    promise!!.reject("ERROR", "Upload request not found")
+                    return@launch
+                }
+
+                when (request.status) {
+                    TruvideoSdkMediaFileUploadStatus.PAUSED -> {
+                        request.resume()
+                        promise!!.resolve("Resume Success")
+                    }
+                    TruvideoSdkMediaFileUploadStatus.UPLOADING -> {
+                        promise!!.reject("ALREADY_UPLOADING", "Upload is already in progress")
+                    }
+                    TruvideoSdkMediaFileUploadStatus.COMPLETED -> {
+                        promise!!.reject("COMPLETED", "Upload is already completed")
+                    }
+                    else -> {
+                        promise!!.reject(
+                            "INVALID_STATE",
+                            "Cannot resume. Current status: ${request.status}. Must be PAUSED."
+                        )
+                    }
+                }
+            }
+        } catch (e: TruvideoSdkException) {
+            promise!!.reject("TruvideoSdkException", e.message)
+        } catch (e: Exception) {
+            promise!!.reject("Exception", e.message)
+        }
+    }
 
 
   override fun search(
