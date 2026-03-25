@@ -21,6 +21,7 @@ export interface Spec extends TurboModule {
     page: string,
     pageSize: string
   ): Promise<string>;
+  searchById(id: string): Promise<string>;
 }
 
 export default TurboModuleRegistry.getEnforcing<Spec>(
