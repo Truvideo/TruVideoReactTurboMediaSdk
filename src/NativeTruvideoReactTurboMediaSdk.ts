@@ -15,6 +15,21 @@ export interface Spec extends TurboModule {
   pauseMedia(id: string): Promise<string>;
   resumeMedia(id: string): Promise<string>;
   uploadMedia(id: string): Promise<string>;
+  createStreamUploadRequest(filePath: string): Promise<string>;
+  getAllStreamUploadRequests(): Promise<string>;
+  getStreamUploadRequestById(id: string): Promise<string>;
+  uploadStreamUploadRequest(
+    id: string,
+    title: string,
+    tags: string,
+    metadata: string,
+    includeInReport: boolean,
+    isLibrary: boolean
+  ): Promise<string>;
+  pauseStreamUploadRequest(id: string): Promise<string>;
+  resumeStreamUploadRequest(id: string): Promise<string>;
+  retryStreamUploadRequest(id: string): Promise<string>;
+  deleteStreamUploadRequest(id: string): Promise<string>;
   search(
     tag: string,
     type: string,

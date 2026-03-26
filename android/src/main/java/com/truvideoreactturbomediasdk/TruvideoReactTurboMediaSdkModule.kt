@@ -12,6 +12,8 @@ import com.truvideo.sdk.media.model.external.TruvideoSdkMediaFileType
 import com.truvideo.sdk.media.model.external.TruvideoSdkMediaFileUploadRequest
 import com.truvideo.sdk.media.model.external.TruvideoSdkMediaFileUploadRequestStatus
 import com.truvideo.sdk.media.model.external.TruvideoSdkMediaTags
+import com.truvideo.sdk.media.model.external.TruvideoSdkMediaMetadata
+import com.truvideo.sdk.media.model.external.TruvideoSdkMediaUploadRequest
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -64,23 +66,85 @@ class TruvideoReactTurboMediaSdkModule(reactContext: ReactApplicationContext) :
     return JSONObject().apply {
       put("id", request.id)
       put("filePath", request.filePath)
-      // FIX: was request.type — correct field is fileType
       put("fileType", request.fileType.name)
       put("createdAt", formatDate(request.createdAt))
       put("updatedAt", formatDate(request.updatedAt))
-      // FIX: was request.tags / request.metadata directly — use .toMap()
       put("tags", JSONObject(request.tags.toMap() as Map<*, *>))
       put("metadata", JSONObject(request.metadata.toMap() as Map<*, *>))
       put("durationMilliseconds", request.durationMilliseconds?.toString() ?: "0")
-      // FIX: was request.remoteId — correct field is mediaId
       put("remoteId", request.mediaId ?: "")
-      // FIX: was request.remoteUrl — correct field is mediaUrl
       put("remoteURL", request.mediaUrl ?: "")
       put("transcriptionURL", request.transcriptionUrl ?: "")
       put("status", request.status.name)
-      // FIX: multiply by 100 to get percentage, same as Flutter plugin
       put("progress", (request.uploadProgress?.times(100) ?: 0))
     }.toString()
+  }
+
+  // ─── Stream Upload Map Helper ─────────────────────────────────────────────────
+
+  private fun mapStreamUploadRequestToJson(request: TruvideoSdkMediaUploadRequest): JSONObject {
+    val partsList = JSONArray()
+    request.parts.forEach { part ->
+      partsList.put(JSONObject().apply {
+        put("index", part.index)
+        put("createdAt", formatDate(part.createdAt))
+        put("updatedAt", formatDate(part.updatedAt))
+        put("startedAt", formatDate(part.metrics.startedAt))
+        put("endedAt", formatDate(part.metrics.endedAt))
+        put("isCompleted", part.metrics.completed)
+      })
+    }
+
+    return JSONObject().apply {
+      put("id", request.id.toString())
+      put("title", request.title ?: "")
+      put("status", request.status.name)
+      put("type", request.type.name)
+      put("progress", (request.progress * 100))
+      put("thumbnailPath", request.thumbnailPath ?: "")
+      put("mediaId", request.mediaId ?: "")
+      put("tags", JSONObject(request.tags.toMap() as Map<*, *>))
+      put("metadata", JSONObject(request.metadata.toMap() as Map<*, *>))
+      put("includeInReport", request.includeInReport)
+      put("isLibrary", request.isLibrary)
+      // File upload metrics
+      put("isStartOperationCompleted", request.fileUploadMetrics.completed)
+      put("startOperationStartedAt", formatDate(request.fileUploadMetrics.startedAt))
+      put("startOperationEndedAt", formatDate(request.fileUploadMetrics.endedAt))
+      // Completion metrics
+      put("isCompleteOperationCompleted", request.completionMetrics.completed)
+      put("completeOperationStartedAt", formatDate(request.completionMetrics.startedAt))
+      put("completeOperationEndedAt", formatDate(request.completionMetrics.endedAt))
+      put("parts", partsList)
+      put("createdAt", formatDate(request.createdAt))
+      put("updatedAt", formatDate(request.updatedAt))
+      put("startedAt", formatDate(request.fileUploadMetrics.startedAt))
+      put("endedAt", formatDate(request.completionMetrics.endedAt))
+    }
+  }
+
+  // ─── JSON → Tags / Metadata helpers ──────────────────────────────────────────
+
+  private fun buildTagsFromJson(jsonStr: String): TruvideoSdkMediaTags {
+    val entries = mutableListOf<TruvideoSdkMediaTags.Entry>()
+    try {
+      val json = JSONObject(jsonStr)
+      json.keys().forEach { key ->
+        entries.add(TruvideoSdkMediaTags.Entry(key, json.getString(key)))
+      }
+    } catch (_: JSONException) { }
+    return TruvideoSdkMediaTags(entries)
+  }
+
+  private fun buildMetadataFromJson(jsonStr: String): TruvideoSdkMediaMetadata {
+    val entries = mutableListOf<TruvideoSdkMediaMetadata.Entry>()
+    try {
+      val json = JSONObject(jsonStr)
+      json.keys().forEach { key ->
+        entries.add(TruvideoSdkMediaMetadata.Entry(key, json.getString(key)))
+      }
+    } catch (_: JSONException) { }
+    return TruvideoSdkMediaMetadata(entries)
   }
 
   // ─── mediaBuilder ────────────────────────────────────────────────────────────
@@ -104,7 +168,6 @@ class TruvideoReactTurboMediaSdkModule(reactContext: ReactApplicationContext) :
     try {
       val builderObj = TruvideoSdkMedia.FileUploadRequestBuilder(filePath)
 
-      // Tags
       try {
         val jsonTag = JSONObject(tag)
         val keys = jsonTag.keys()
@@ -114,7 +177,6 @@ class TruvideoReactTurboMediaSdkModule(reactContext: ReactApplicationContext) :
         }
       } catch (_: JSONException) { }
 
-      // Metadata
       try {
         val jsonMetadata = JSONObject(metaData)
         val metadataKeys = jsonMetadata.keys()
@@ -124,7 +186,6 @@ class TruvideoReactTurboMediaSdkModule(reactContext: ReactApplicationContext) :
         }
       } catch (_: JSONException) { }
 
-      // FIX: build() is now a suspend function — no callback needed
       val request = builderObj.build()
       withContext(Dispatchers.Main) {
         promise.resolve(returnRequest(request))
@@ -166,16 +227,15 @@ class TruvideoReactTurboMediaSdkModule(reactContext: ReactApplicationContext) :
           val requests = TruvideoSdkMedia.getAllFileUploadRequests()
           promise!!.resolve(returnRequestsJson(requests))
         } else {
-          // Docs §5.6.2: correct enum is TruvideoSdkMediaFileUploadRequestStatus
           val mainStatus: TruvideoSdkMediaFileUploadRequestStatus? = when (status.uppercase()) {
-            "UPLOADING" -> TruvideoSdkMediaFileUploadRequestStatus.UPLOADING
-            "IDLE" -> TruvideoSdkMediaFileUploadRequestStatus.IDLE
-            "ERROR" -> TruvideoSdkMediaFileUploadRequestStatus.ERROR
-            "PAUSED" -> TruvideoSdkMediaFileUploadRequestStatus.PAUSED
-            "COMPLETED" -> TruvideoSdkMediaFileUploadRequestStatus.COMPLETED
-            "CANCELED" -> TruvideoSdkMediaFileUploadRequestStatus.CANCELED
+            "UPLOADING"     -> TruvideoSdkMediaFileUploadRequestStatus.UPLOADING
+            "IDLE"          -> TruvideoSdkMediaFileUploadRequestStatus.IDLE
+            "ERROR"         -> TruvideoSdkMediaFileUploadRequestStatus.ERROR
+            "PAUSED"        -> TruvideoSdkMediaFileUploadRequestStatus.PAUSED
+            "COMPLETED"     -> TruvideoSdkMediaFileUploadRequestStatus.COMPLETED
+            "CANCELED"      -> TruvideoSdkMediaFileUploadRequestStatus.CANCELED
             "SYNCHRONIZING" -> TruvideoSdkMediaFileUploadRequestStatus.SYNCHRONIZING
-            else -> null
+            else            -> null
           }
           val requests = TruvideoSdkMedia.getAllFileUploadRequests(mainStatus)
           promise!!.resolve(returnRequestsJson(requests))
@@ -212,24 +272,16 @@ class TruvideoReactTurboMediaSdkModule(reactContext: ReactApplicationContext) :
               },
               object : TruvideoSdkMediaFileUploadCallback {
                 override fun onComplete(id: String, response: TruvideoSdkMediaFileUploadRequest) {
-                  // FIX: use .toMap() for tags/metadata, correct field names
-                  val metadataObj = JSONObject(
-                    response.metadata.toMap() as Map<*, *>
-                  )
-                  val tagsObj = JSONObject(
-                    response.tags.toMap() as Map<*, *>
-                  )
+                  val metadataObj = JSONObject(response.metadata.toMap() as Map<*, *>)
+                  val tagsObj = JSONObject(response.tags.toMap() as Map<*, *>)
                   val mainResponse = JSONObject().apply {
                     put("id", id)
                     put("createdDate", formatDate(response.createdAt))
-                    // FIX: was response.remoteId → mediaId
                     put("remoteId", response.mediaId ?: "")
-                    // FIX: was response.remoteUrl → mediaUrl
                     put("uploadedFileURL", response.mediaUrl ?: "")
                     put("metaData", metadataObj)
                     put("tags", tagsObj)
                     put("transcriptionURL", response.transcriptionUrl ?: "")
-                    // FIX: was request.type → fileType
                     put("fileType", response.fileType.name)
                   }
                   promise.resolve(mainResponse.toString())
@@ -263,6 +315,252 @@ class TruvideoReactTurboMediaSdkModule(reactContext: ReactApplicationContext) :
       )
     } catch (e: Exception) {
       promise.reject("Exception", e.message)
+    }
+  }
+
+  // ─── createStreamUploadRequest ───────────────────────────────────────────────
+  // This stub notifies the caller clearly rather than silently failing.
+
+  override fun createStreamUploadRequest(filePath: String?, promise: Promise?) {
+    promise!!.reject(
+      "NOT_SUPPORTED",
+      "Stream upload requests are created by the recording SDK, not by this method. " +
+      "Use getAllStreamUploadRequests() to list pending requests after recording."
+    )
+  }
+  // ─── getAllStreamUploadRequests ───────────────────────────────────────────────
+
+  override fun getAllStreamUploadRequests(promise: Promise?) {
+    scope.launch {
+      try {
+        val requests = TruvideoSdkMedia.getAllUploadRequests()
+        val jsonArray = JSONArray()
+        requests.forEach { request ->
+          jsonArray.put(mapStreamUploadRequestToJson(request))
+        }
+        withContext(Dispatchers.Main) {
+          promise!!.resolve(jsonArray.toString())
+        }
+      } catch (e: TruvideoSdkException) {
+        withContext(Dispatchers.Main) {
+          promise!!.reject("TruvideoSdkException", e.message)
+        }
+      } catch (e: Exception) {
+        withContext(Dispatchers.Main) {
+          promise!!.reject("Exception", e.message)
+        }
+      }
+    }
+  }
+
+  // ─── getStreamUploadRequestById ──────────────────────────────────────────────
+
+  override fun getStreamUploadRequestById(id: String?, promise: Promise?) {
+    val longId = id?.toLongOrNull()
+    if (longId == null) {
+      promise!!.reject("INVALID_ID", "Stream upload request ID must be a valid numeric (Long) value")
+      return
+    }
+    scope.launch {
+      try {
+        val request = TruvideoSdkMedia.getUploadRequestById(longId)
+        withContext(Dispatchers.Main) {
+          if (request == null) {
+            promise!!.resolve("{}")
+          } else {
+            promise!!.resolve(mapStreamUploadRequestToJson(request).toString())
+          }
+        }
+      } catch (e: TruvideoSdkException) {
+        withContext(Dispatchers.Main) {
+          promise!!.reject("TruvideoSdkException", e.message)
+        }
+      } catch (e: Exception) {
+        withContext(Dispatchers.Main) {
+          promise!!.reject("Exception", e.message)
+        }
+      }
+    }
+  }
+
+  // ─── uploadStreamUploadRequest ───────────────────────────────────────────────
+
+  override fun uploadStreamUploadRequest(
+    id: String?,
+    title: String?,
+    tags: String?,
+    metadata: String?,
+    includeInReport: Boolean,
+    isLibrary: Boolean,
+    promise: Promise?
+  ) {
+    val longId = id?.toLongOrNull()
+    if (longId == null) {
+      promise!!.reject("INVALID_ID", "Stream upload request ID must be a valid numeric (Long) value")
+      return
+    }
+    scope.launch {
+      try {
+        val request = TruvideoSdkMedia.getUploadRequestById(longId)
+        if (request == null) {
+          withContext(Dispatchers.Main) {
+            promise!!.reject("NOT_FOUND", "Stream upload request not found for id: $id")
+          }
+          return@launch
+        }
+        val tagsObj = buildTagsFromJson(tags ?: "{}")
+        val metadataObj = buildMetadataFromJson(metadata ?: "{}")
+        request.upload(
+          title = title ?: "",
+          tags = tagsObj,
+          metadata = metadataObj,
+          includeInReport = includeInReport,
+          isLibrary = isLibrary
+        )
+        withContext(Dispatchers.Main) {
+          promise!!.resolve("Stream upload started")
+        }
+      } catch (e: TruvideoSdkException) {
+        withContext(Dispatchers.Main) {
+          promise!!.reject("TruvideoSdkException", e.message)
+        }
+      } catch (e: Exception) {
+        withContext(Dispatchers.Main) {
+          promise!!.reject("Exception", e.message)
+        }
+      }
+    }
+  }
+
+  // ─── pauseStreamUploadRequest ────────────────────────────────────────────────
+
+  override fun pauseStreamUploadRequest(id: String?, promise: Promise?) {
+    val longId = id?.toLongOrNull()
+    if (longId == null) {
+      promise!!.reject("INVALID_ID", "Stream upload request ID must be a valid numeric (Long) value")
+      return
+    }
+    scope.launch {
+      try {
+        val request = TruvideoSdkMedia.getUploadRequestById(longId)
+        if (request == null) {
+          withContext(Dispatchers.Main) {
+            promise!!.reject("NOT_FOUND", "Stream upload request not found for id: $id")
+          }
+          return@launch
+        }
+        request.pause()
+        withContext(Dispatchers.Main) {
+          promise!!.resolve("Stream paused")
+        }
+      } catch (e: TruvideoSdkException) {
+        withContext(Dispatchers.Main) {
+          promise!!.reject("TruvideoSdkException", e.message)
+        }
+      } catch (e: Exception) {
+        withContext(Dispatchers.Main) {
+          promise!!.reject("Exception", e.message)
+        }
+      }
+    }
+  }
+
+  // ─── resumeStreamUploadRequest ───────────────────────────────────────────────
+
+  override fun resumeStreamUploadRequest(id: String?, promise: Promise?) {
+    val longId = id?.toLongOrNull()
+    if (longId == null) {
+      promise!!.reject("INVALID_ID", "Stream upload request ID must be a valid numeric (Long) value")
+      return
+    }
+    scope.launch {
+      try {
+        val request = TruvideoSdkMedia.getUploadRequestById(longId)
+        if (request == null) {
+          withContext(Dispatchers.Main) {
+            promise!!.reject("NOT_FOUND", "Stream upload request not found for id: $id")
+          }
+          return@launch
+        }
+        request.resume()
+        withContext(Dispatchers.Main) {
+          promise!!.resolve("Stream resumed")
+        }
+      } catch (e: TruvideoSdkException) {
+        withContext(Dispatchers.Main) {
+          promise!!.reject("TruvideoSdkException", e.message)
+        }
+      } catch (e: Exception) {
+        withContext(Dispatchers.Main) {
+          promise!!.reject("Exception", e.message)
+        }
+      }
+    }
+  }
+
+  // ─── retryStreamUploadRequest ────────────────────────────────────────────────
+
+  override fun retryStreamUploadRequest(id: String?, promise: Promise?) {
+    val longId = id?.toLongOrNull()
+    if (longId == null) {
+      promise!!.reject("INVALID_ID", "Stream upload request ID must be a valid numeric (Long) value")
+      return
+    }
+    scope.launch {
+      try {
+        val request = TruvideoSdkMedia.getUploadRequestById(longId)
+        if (request == null) {
+          withContext(Dispatchers.Main) {
+            promise!!.reject("NOT_FOUND", "Stream upload request not found for id: $id")
+          }
+          return@launch
+        }
+        request.retry()
+        withContext(Dispatchers.Main) {
+          promise!!.resolve("Stream retried")
+        }
+      } catch (e: TruvideoSdkException) {
+        withContext(Dispatchers.Main) {
+          promise!!.reject("TruvideoSdkException", e.message)
+        }
+      } catch (e: Exception) {
+        withContext(Dispatchers.Main) {
+          promise!!.reject("Exception", e.message)
+        }
+      }
+    }
+  }
+
+  // ─── deleteStreamUploadRequest ───────────────────────────────────────────────
+
+  override fun deleteStreamUploadRequest(id: String?, promise: Promise?) {
+    val longId = id?.toLongOrNull()
+    if (longId == null) {
+      promise!!.reject("INVALID_ID", "Stream upload request ID must be a valid numeric (Long) value")
+      return
+    }
+    scope.launch {
+      try {
+        val request = TruvideoSdkMedia.getUploadRequestById(longId)
+        if (request == null) {
+          withContext(Dispatchers.Main) {
+            promise!!.reject("NOT_FOUND", "Stream upload request not found for id: $id")
+          }
+          return@launch
+        }
+        request.delete()
+        withContext(Dispatchers.Main) {
+          promise!!.resolve("Stream deleted")
+        }
+      } catch (e: TruvideoSdkException) {
+        withContext(Dispatchers.Main) {
+          promise!!.reject("TruvideoSdkException", e.message)
+        }
+      } catch (e: Exception) {
+        withContext(Dispatchers.Main) {
+          promise!!.reject("Exception", e.message)
+        }
+      }
     }
   }
 
@@ -374,9 +672,9 @@ class TruvideoReactTurboMediaSdkModule(reactContext: ReactApplicationContext) :
         val typeData: TruvideoSdkMediaFileType? = when (type?.uppercase()) {
           "VIDEO" -> TruvideoSdkMediaFileType.VIDEO
           "AUDIO" -> TruvideoSdkMediaFileType.AUDIO
-          "PDF" -> TruvideoSdkMediaFileType.DOCUMENT
+          "PDF"   -> TruvideoSdkMediaFileType.DOCUMENT
           "IMAGE" -> TruvideoSdkMediaFileType.IMAGE
-          else -> null
+          else   -> null
         }
 
         val tagsList = mutableListOf<TruvideoSdkMediaTags.Entry>()
@@ -398,12 +696,10 @@ class TruvideoReactTurboMediaSdkModule(reactContext: ReactApplicationContext) :
         )
 
         val jsonArray = JSONArray()
-
         resultData?.data?.items?.forEach { item ->
           val metadataObj = JSONObject(item.metadata.toMap() as Map<*, *>)
           val tagsObj = JSONObject(item.tags.toMap() as Map<*, *>)
-
-          val jsonObject = JSONObject().apply {
+          jsonArray.put(JSONObject().apply {
             put("id", item.id)
             put("createdDate", formatDate(item.createdAt))
             put("remoteId", item.id)
@@ -416,8 +712,7 @@ class TruvideoReactTurboMediaSdkModule(reactContext: ReactApplicationContext) :
             put("title", item.title)
             put("duration", item.duration ?: "0")
             put("isLibrary", item.isLibrary)
-          }
-          jsonArray.put(jsonObject)
+          })
         }
 
         val responseObject = JSONObject().apply {
@@ -441,7 +736,6 @@ class TruvideoReactTurboMediaSdkModule(reactContext: ReactApplicationContext) :
   }
 
   // ─── searchById ──────────────────────────────────────────────────────────────
-  // Docs §5.2.3: searchById(ids: List<String>, page, pageSize) → TruvideoSdkMediaPagedResult?
 
   override fun searchById(id: String, promise: Promise) {
     if (id.isEmpty()) {
