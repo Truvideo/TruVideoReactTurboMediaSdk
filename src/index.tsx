@@ -54,6 +54,121 @@ export interface UploadErrorEvent {
   error: any;
 }
 
+// ─────────────────────────────────────────────────────────────────────────────
+// Stream Upload (multipart / chunked) - Upload Requests
+// ─────────────────────────────────────────────────────────────────────────────
+
+export type StreamUploadRequestPart = {
+  index: number;
+  createdAt?: string;
+  updatedAt?: string;
+  startedAt?: string;
+  endedAt?: string;
+  isCompleted: boolean;
+};
+
+export type StreamUploadRequestStatus =
+  | 'IDLE'
+  | 'PAUSED'
+  | 'PROCESSING'
+  | 'UPLOAD_PENDING'
+  | 'UPLOADED'
+  | 'ERROR';
+
+export type StreamUploadRequest = {
+  id: string; // Android: Long -> string, iOS: String
+  status: StreamUploadRequestStatus;
+  type?: string;
+  progress?: number;
+  thumbnailPath?: string;
+  mediaId?: string;
+  isStartOperationCompleted?: boolean;
+  startOperationStartedAt?: string;
+  startOperationEndedAt?: string;
+  isCompleteOperationCompleted?: boolean;
+  completeOperationStartedAt?: string;
+  completeOperationEndedAt?: string;
+  parts?: StreamUploadRequestPart[];
+  createdAt?: string;
+  updatedAt?: string;
+  startedAt?: string;
+  endedAt?: string;
+};
+
+const mapMediaRequestToStreamUploadRequest = (req: MediaRequest | MediaData): StreamUploadRequest => {
+  const requestData = req as MediaData;
+  return {
+    id: requestData.id,
+    status: (requestData.status as StreamUploadRequestStatus) || 'IDLE',
+    type: requestData.fileType,
+    progress:
+      typeof requestData.progress === 'number'
+        ? requestData.progress > 1
+          ? requestData.progress / 100
+          : requestData.progress
+        : 0,
+    mediaId: requestData.remoteId,
+    createdAt: requestData.createdAt,
+    updatedAt: requestData.updatedAt,
+  };
+};
+
+export async function createStreamUploadRequest(filePath: string): Promise<StreamUploadRequest> {
+  // Fallback implementation using existing file upload request APIs.
+  const builder = new MediaBuilder(filePath);
+  await builder.build();
+  const detail = (builder as any).mediaDetail as MediaData | undefined;
+  if (!detail) {
+    throw new Error('Unable to create upload request');
+  }
+  return mapMediaRequestToStreamUploadRequest(detail);
+}
+
+export async function getAllStreamUploadRequests(): Promise<StreamUploadRequest[]> {
+  const all = await getAllFileUploadRequests();
+  return all.map((req) => mapMediaRequestToStreamUploadRequest(req as any));
+}
+
+export async function getStreamUploadRequestById(id: string): Promise<StreamUploadRequest | null> {
+  const req = await getFileUploadRequestById(id);
+  if (!req) return null;
+  return mapMediaRequestToStreamUploadRequest(req as any);
+}
+
+export async function uploadStreamUploadRequest(params: {
+  id: string;
+  title?: string;
+  tags?: Record<string, string> | Map<string, string>;
+  metadata?: Record<string, any> | Map<string, any>;
+  includeInReport?: boolean;
+  isLibrary?: boolean;
+}): Promise<StreamUploadRequest> {
+  const { id } = params;
+  await TruvideoReactTurboMediaSdk.uploadMedia(id);
+  const req = await getStreamUploadRequestById(id);
+  if (!req) {
+    throw new Error('Upload request not found');
+  }
+  return req;
+}
+
+export async function pauseStreamUploadRequest(id: string): Promise<void> {
+  await TruvideoReactTurboMediaSdk.pauseMedia(id);
+}
+
+export async function resumeStreamUploadRequest(id: string): Promise<void> {
+  await TruvideoReactTurboMediaSdk.resumeMedia(id);
+}
+
+export async function retryStreamUploadRequest(id: string): Promise<void> {
+  await TruvideoReactTurboMediaSdk.resumeMedia(id);
+  await TruvideoReactTurboMediaSdk.uploadMedia(id);
+}
+
+export async function deleteStreamUploadRequest(id: string): Promise<void> {
+  await TruvideoReactTurboMediaSdk.deleteMedia(id);
+}
+
 // Define the signature for the callbacks MediaBuilder will expect
 export interface UploadCallbacks {
   onProgress?: (event: UploadProgressEvent) => void;

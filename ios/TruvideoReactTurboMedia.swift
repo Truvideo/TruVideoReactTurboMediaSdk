@@ -548,6 +548,186 @@ import React
       return jsonString
   }
 
+  // ────────────────────────────────────────────────────────────────────────────
+  // Stream Upload (multipart / chunked) - Stream Requests
+  // ────────────────────────────────────────────────────────────────────────────
+
+  private func streamRequestToDictionary(_ req: TruvideoSdkMediaStreamRequest) -> [String: Any] {
+    let dateFormatter = ISO8601DateFormatter()
+
+    var partsArray: [[String: Any]] = []
+    for part in req.parts {
+      partsArray.append([
+        "index": part.index,
+        "createdAt": part.createdAt != nil ? dateFormatter.string(from: part.createdAt!) : "",
+        "updatedAt": part.updatedAt != nil ? dateFormatter.string(from: part.updatedAt!) : "",
+        "startedAt": part.startedAt != nil ? dateFormatter.string(from: part.startedAt!) : "",
+        "endedAt": part.endedAt != nil ? dateFormatter.string(from: part.endedAt!) : "",
+        "isCompleted": part.isCompleted,
+      ])
+    }
+
+    return [
+      "id": req.id,
+      "status": String(describing: req.status).uppercased(),
+      "type": String(describing: req.type).uppercased(),
+      "progress": req.progress,
+      "thumbnailPath": req.thumbnailPath,
+      "mediaId": req.mediaId ?? "",
+      "isStartOperationCompleted": req.isStartOperationCompleted,
+      "startOperationStartedAt": req.startOperationStartedAt != nil ? dateFormatter.string(from: req.startOperationStartedAt!) : "",
+      "startOperationEndedAt": req.startOperationEndedAt != nil ? dateFormatter.string(from: req.startOperationEndedAt!) : "",
+      "isCompleteOperationCompleted": req.isCompleteOperationCompleted,
+      "completeOperationStartedAt": req.completeOperationStartedAt != nil ? dateFormatter.string(from: req.completeOperationStartedAt!) : "",
+      "completeOperationEndedAt": req.completeOperationEndedAt != nil ? dateFormatter.string(from: req.completeOperationEndedAt!) : "",
+      "parts": partsArray,
+      "createdAt": req.createdAt != nil ? dateFormatter.string(from: req.createdAt!) : "",
+      "updatedAt": req.updatedAt != nil ? dateFormatter.string(from: req.updatedAt!) : "",
+      "startedAt": req.startedAt != nil ? dateFormatter.string(from: req.startedAt!) : "",
+      "endedAt": req.endedAt != nil ? dateFormatter.string(from: req.endedAt!) : "",
+    ]
+  }
+
+  @objc public func createStreamUploadRequest(filePath: String, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
+    guard let fileURL = URL(string: "file://\(filePath)") else {
+      reject("INVALID_URL", "The file URL is invalid", nil)
+      return
+    }
+    Task {
+      do {
+        let req = try await TruvideoSdkMedia().createUploadRequest(from: fileURL)
+        let json = try convertToJsonString(from: streamRequestToDictionary(req))
+        resolve(json)
+      } catch {
+        reject("STREAM_UPLOAD_ERROR", "Failed to create stream upload request", error)
+      }
+    }
+  }
+
+  @objc public func getAllStreamUploadRequests(resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
+    Task {
+      do {
+        let reqs = try await TruvideoSdkMedia().getAllUploadRequests()
+        let arr = try reqs.map { streamRequestToDictionary($0) }
+        let json = try convertToJsonString(from: ["items": arr]) // wrap to keep JSON valid for empty arrays in some bridges
+        // Return just array string for JS side compatibility
+        if let data = json.data(using: .utf8),
+           let obj = try JSONSerialization.jsonObject(with: data) as? [String: Any],
+           let items = obj["items"] {
+          let raw = try JSONSerialization.data(withJSONObject: items, options: [])
+          resolve(String(data: raw, encoding: .utf8) ?? "[]")
+        } else {
+          resolve("[]")
+        }
+      } catch {
+        reject("STREAM_UPLOAD_ERROR", "Failed to list stream upload requests", error)
+      }
+    }
+  }
+
+  @objc public func getStreamUploadRequestById(id: String, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
+    Task {
+      do {
+        let req = try await TruvideoSdkMedia().getUploadRequestById(id)
+        let json = try convertToJsonString(from: streamRequestToDictionary(req))
+        resolve(json)
+      } catch {
+        resolve("{}")
+      }
+    }
+  }
+
+  @objc public func uploadStreamUploadRequest(
+    id: String,
+    title: String,
+    tags: String,
+    metadata: String,
+    includeInReport: Bool,
+    isLibrary: Bool,
+    resolve: @escaping RCTPromiseResolveBlock,
+    reject: @escaping RCTPromiseRejectBlock
+  ) {
+    Task {
+      do {
+        let media = TruvideoSdkMedia()
+        let req = try await media.getUploadRequestById(id)
+
+        let tagsDict = (try? convertToDictionary(from: tags)) ?? [:]
+        var tagBuilder = TruvideoSdkMediaTags.builder()
+        for (k, v) in tagsDict {
+          tagBuilder = tagBuilder.set(k, "\(v)")
+        }
+
+        let metaDict = (try? convertToDictionary(from: metadata)) ?? [:]
+        var metaBuilder = TruvideoSdkMediaMetadata.builder()
+        for (k, v) in metaDict {
+          metaBuilder = metaBuilder.set(k, "\(v)")
+        }
+
+        try await req.upload(
+          title: title,
+          tags: tagBuilder.build(),
+          metadata: metaBuilder.build(),
+          includeInReport: includeInReport,
+          isLibrary: isLibrary
+        )
+
+        let json = try convertToJsonString(from: streamRequestToDictionary(req))
+        resolve(json)
+      } catch {
+        reject("STREAM_UPLOAD_ERROR", "Failed to start stream upload", error)
+      }
+    }
+  }
+
+  @objc public func pauseStreamUploadRequest(id: String, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
+    Task {
+      do {
+        let req = try await TruvideoSdkMedia().getUploadRequestById(id)
+        try await req.pause()
+        resolve("OK")
+      } catch {
+        reject("STREAM_UPLOAD_ERROR", "Failed to pause stream upload", error)
+      }
+    }
+  }
+
+  @objc public func resumeStreamUploadRequest(id: String, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
+    Task {
+      do {
+        let req = try await TruvideoSdkMedia().getUploadRequestById(id)
+        try await req.resume()
+        resolve("OK")
+      } catch {
+        reject("STREAM_UPLOAD_ERROR", "Failed to resume stream upload", error)
+      }
+    }
+  }
+
+  @objc public func retryStreamUploadRequest(id: String, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
+    Task {
+      do {
+        let req = try await TruvideoSdkMedia().getUploadRequestById(id)
+        try await req.retry()
+        resolve("OK")
+      } catch {
+        reject("STREAM_UPLOAD_ERROR", "Failed to retry stream upload", error)
+      }
+    }
+  }
+
+  @objc public func deleteStreamUploadRequest(id: String, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
+    Task {
+      do {
+        let req = try await TruvideoSdkMedia().getUploadRequestById(id)
+        try await req.delete()
+        resolve("OK")
+      } catch {
+        reject("STREAM_UPLOAD_ERROR", "Failed to delete stream upload", error)
+      }
+    }
+  }
+
 
 //    private func convertToMetadata(from jsonString: String) throws -> Metadata {
 //        guard let jsonData = jsonString.data(using: .utf8) else {
