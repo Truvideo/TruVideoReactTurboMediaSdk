@@ -137,14 +137,14 @@ class TruvideoReactTurboMediaSdkModule(reactContext: ReactApplicationContext) :
   }
 
   private fun buildMetadataFromJson(jsonStr: String): TruvideoSdkMediaMetadata {
-    val entries = mutableListOf<TruvideoSdkMediaMetadata.Entry>()
+    val builder = TruvideoSdkMediaMetadata.builder()
     try {
       val json = JSONObject(jsonStr)
       json.keys().forEach { key ->
-        entries.add(TruvideoSdkMediaMetadata.Entry(key, json.getString(key)))
+        builder.set(key, json.getString(key))
       }
     } catch (_: JSONException) { }
-    return TruvideoSdkMediaMetadata(entries)
+    return builder.build()
   }
 
   // ─── mediaBuilder ────────────────────────────────────────────────────────────
