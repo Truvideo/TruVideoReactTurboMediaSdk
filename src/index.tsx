@@ -114,7 +114,6 @@ const mapMediaRequestToStreamUploadRequest = (req: MediaRequest | MediaData): St
 };
 
 export async function createStreamUploadRequest(filePath: string): Promise<StreamUploadRequest> {
-  // Fallback implementation using existing file upload request APIs.
   const builder = new MediaBuilder(filePath);
   await builder.build();
   const detail = (builder as any).mediaDetail as MediaData | undefined;
@@ -125,14 +124,25 @@ export async function createStreamUploadRequest(filePath: string): Promise<Strea
 }
 
 export async function getAllStreamUploadRequests(): Promise<StreamUploadRequest[]> {
-  const all = await getAllFileUploadRequests();
-  return all.map((req) => mapMediaRequestToStreamUploadRequest(req as any));
+  const response = await TruvideoReactTurboMediaSdk.getAllStreamUploadRequests();
+  try {
+    const parsed = JSON.parse(response);
+    return parsed as StreamUploadRequest[];
+  } catch (e) {
+    console.error("Failed to parse stream upload requests:", e);
+    return [];
+  }
 }
 
 export async function getStreamUploadRequestById(id: string): Promise<StreamUploadRequest | null> {
-  const req = await getFileUploadRequestById(id);
-  if (!req) return null;
-  return mapMediaRequestToStreamUploadRequest(req as any);
+  const response = await TruvideoReactTurboMediaSdk.getStreamUploadRequestById(id);
+  try {
+    const parsed = JSON.parse(response);
+    if (!parsed || Object.keys(parsed).length === 0) return null;
+    return parsed as StreamUploadRequest;
+  } catch (e) {
+    return null;
+  }
 }
 
 export async function uploadStreamUploadRequest(params: {
