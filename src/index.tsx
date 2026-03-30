@@ -153,8 +153,32 @@ export async function uploadStreamUploadRequest(params: {
   includeInReport?: boolean;
   isLibrary?: boolean;
 }): Promise<StreamUploadRequest> {
-  const { id } = params;
-  await TruvideoReactTurboMediaSdk.uploadMedia(id);
+  const {
+    id,
+    title = "",
+    tags = {},
+    metadata = {},
+    includeInReport = true,
+    isLibrary = true,
+  } = params;
+
+  const tagsObj = tags instanceof Map
+    ? Object.fromEntries(tags)
+    : tags;
+
+  const metadataObj = metadata instanceof Map
+    ? Object.fromEntries(metadata)
+    : metadata;
+
+  await TruvideoReactTurboMediaSdk.uploadStreamUploadRequest(
+    String(id),
+    title,
+    JSON.stringify(tagsObj),
+    JSON.stringify(metadataObj),
+    includeInReport,
+    isLibrary
+  );
+
   const req = await getStreamUploadRequestById(id);
   if (!req) {
     throw new Error('Upload request not found');
