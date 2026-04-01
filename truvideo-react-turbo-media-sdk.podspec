@@ -17,7 +17,7 @@ Pod::Spec.new do |s|
   s.source_files = "ios/**/*.{h,m,mm,cpp,swift}"
   s.private_header_files = "ios/**/*.h"
 #  s.static_framework = false
- s.vendored_frameworks = ['ios/xcframeworks/TruvideoSdkMedia.xcframework']
+ s.vendored_frameworks = ['ios/xcframeworks/TruvideoSdkMedia.xcframework' ,'ios/xcframeworks/TruVideoRuntime.xcframework']
 #  s.dependency "truvideo-sdk-core/Media" , "79.0.0"
 
   # s.dependency "truvideo-sdk-media"
