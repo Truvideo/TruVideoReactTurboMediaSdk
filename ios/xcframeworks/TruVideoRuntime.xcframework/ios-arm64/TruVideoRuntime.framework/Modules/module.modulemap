@@ -1,0 +1,6 @@
+framework module TruVideoRuntime {
+  umbrella header "TruVideoRuntime.h"
+  export *
+
+  module * { export * }
+}

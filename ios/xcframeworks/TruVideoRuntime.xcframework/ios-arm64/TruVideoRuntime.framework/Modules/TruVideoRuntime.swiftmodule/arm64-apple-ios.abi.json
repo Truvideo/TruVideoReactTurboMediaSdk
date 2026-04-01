@@ -1,0 +1,362 @@
+{
+  "ABIRoot": {
+    "kind": "Root",
+    "name": "TruVideoRuntime",
+    "printedName": "TruVideoRuntime",
+    "children": [
+      {
+        "kind": "Import",
+        "name": "Foundation",
+        "printedName": "Foundation",
+        "declKind": "Import",
+        "moduleName": "TruVideoRuntime",
+        "declAttributes": [
+          "RawDocComment"
+        ]
+      },
+      {
+        "kind": "TypeDecl",
+        "name": "Library",
+        "printedName": "Library",
+        "children": [
+          {
+            "kind": "Var",
+            "name": "name",
+            "printedName": "name",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "s:15TruVideoRuntime7LibraryP4nameSSvp",
+            "mangledName": "$s15TruVideoRuntime7LibraryP4nameSSvp",
+            "moduleName": "TruVideoRuntime",
+            "protocolReq": true,
+            "declAttributes": [
+              "RawDocComment"
+            ],
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:15TruVideoRuntime7LibraryP4nameSSvg",
+                "mangledName": "$s15TruVideoRuntime7LibraryP4nameSSvg",
+                "moduleName": "TruVideoRuntime",
+                "genericSig": "<τ_0_0 where τ_0_0 : TruVideoRuntime.Library>",
+                "sugared_genericSig": "<Self where Self : TruVideoRuntime.Library>",
+                "protocolReq": true,
+                "reqNewWitnessTableEntry": true,
+                "accessorKind": "get"
+              }
+            ]
+          },
+          {
+            "kind": "Var",
+            "name": "version",
+            "printedName": "version",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "s:15TruVideoRuntime7LibraryP7versionSSvp",
+            "mangledName": "$s15TruVideoRuntime7LibraryP7versionSSvp",
+            "moduleName": "TruVideoRuntime",
+            "protocolReq": true,
+            "declAttributes": [
+              "RawDocComment"
+            ],
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:15TruVideoRuntime7LibraryP7versionSSvg",
+                "mangledName": "$s15TruVideoRuntime7LibraryP7versionSSvg",
+                "moduleName": "TruVideoRuntime",
+                "genericSig": "<τ_0_0 where τ_0_0 : TruVideoRuntime.Library>",
+                "sugared_genericSig": "<Self where Self : TruVideoRuntime.Library>",
+                "protocolReq": true,
+                "reqNewWitnessTableEntry": true,
+                "accessorKind": "get"
+              }
+            ]
+          },
+          {
+            "kind": "Function",
+            "name": "configure",
+            "printedName": "configure()",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "s:15TruVideoRuntime7LibraryP9configureyyF",
+            "mangledName": "$s15TruVideoRuntime7LibraryP9configureyyF",
+            "moduleName": "TruVideoRuntime",
+            "genericSig": "<τ_0_0 where τ_0_0 : TruVideoRuntime.Library>",
+            "sugared_genericSig": "<Self where Self : TruVideoRuntime.Library>",
+            "protocolReq": true,
+            "declAttributes": [
+              "RawDocComment"
+            ],
+            "reqNewWitnessTableEntry": true,
+            "funcSelfKind": "NonMutating"
+          }
+        ],
+        "declKind": "Protocol",
+        "usr": "s:15TruVideoRuntime7LibraryP",
+        "mangledName": "$s15TruVideoRuntime7LibraryP",
+        "moduleName": "TruVideoRuntime",
+        "declAttributes": [
+          "AccessControl",
+          "RawDocComment"
+        ],
+        "conformances": [
+          {
+            "kind": "Conformance",
+            "name": "Escapable",
+            "printedName": "Escapable",
+            "usr": "s:s9EscapableP",
+            "mangledName": "$ss9EscapableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Copyable",
+            "printedName": "Copyable",
+            "usr": "s:s8CopyableP",
+            "mangledName": "$ss8CopyableP"
+          }
+        ]
+      },
+      {
+        "kind": "TypeDecl",
+        "name": "LibraryRegistry",
+        "printedName": "LibraryRegistry",
+        "children": [
+          {
+            "kind": "Var",
+            "name": "isConfigured",
+            "printedName": "isConfigured",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Bool",
+                "printedName": "Swift.Bool",
+                "usr": "s:Sb"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "s:15TruVideoRuntime15LibraryRegistryC12isConfiguredSbvpZ",
+            "mangledName": "$s15TruVideoRuntime15LibraryRegistryC12isConfiguredSbvpZ",
+            "moduleName": "TruVideoRuntime",
+            "static": true,
+            "declAttributes": [
+              "HasInitialValue",
+              "Final",
+              "HasStorage",
+              "SetterAccess",
+              "AccessControl",
+              "RawDocComment"
+            ],
+            "hasStorage": true,
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Bool",
+                    "printedName": "Swift.Bool",
+                    "usr": "s:Sb"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:15TruVideoRuntime15LibraryRegistryC12isConfiguredSbvgZ",
+                "mangledName": "$s15TruVideoRuntime15LibraryRegistryC12isConfiguredSbvgZ",
+                "moduleName": "TruVideoRuntime",
+                "static": true,
+                "implicit": true,
+                "declAttributes": [
+                  "Final"
+                ],
+                "accessorKind": "get"
+              }
+            ]
+          },
+          {
+            "kind": "Function",
+            "name": "configureAll",
+            "printedName": "configureAll()",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "s:15TruVideoRuntime15LibraryRegistryC12configureAllyyFZ",
+            "mangledName": "$s15TruVideoRuntime15LibraryRegistryC12configureAllyyFZ",
+            "moduleName": "TruVideoRuntime",
+            "static": true,
+            "declAttributes": [
+              "Final",
+              "AccessControl",
+              "RawDocComment"
+            ],
+            "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "Function",
+            "name": "register",
+            "printedName": "register(_:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Library",
+                "printedName": "any TruVideoRuntime.Library",
+                "usr": "s:15TruVideoRuntime7LibraryP"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "s:15TruVideoRuntime15LibraryRegistryC8registeryyAA0D0_pFZ",
+            "mangledName": "$s15TruVideoRuntime15LibraryRegistryC8registeryyAA0D0_pFZ",
+            "moduleName": "TruVideoRuntime",
+            "static": true,
+            "declAttributes": [
+              "Final",
+              "AccessControl",
+              "RawDocComment"
+            ],
+            "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "Function",
+            "name": "registeredLibraries",
+            "printedName": "registeredLibraries()",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Dictionary",
+                "printedName": "[Swift.String : Swift.String]",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  }
+                ],
+                "usr": "s:SD"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "s:15TruVideoRuntime15LibraryRegistryC19registeredLibrariesSDyS2SGyFZ",
+            "mangledName": "$s15TruVideoRuntime15LibraryRegistryC19registeredLibrariesSDyS2SGyFZ",
+            "moduleName": "TruVideoRuntime",
+            "static": true,
+            "declAttributes": [
+              "Final",
+              "AccessControl",
+              "RawDocComment"
+            ],
+            "funcSelfKind": "NonMutating"
+          }
+        ],
+        "declKind": "Class",
+        "usr": "s:15TruVideoRuntime15LibraryRegistryC",
+        "mangledName": "$s15TruVideoRuntime15LibraryRegistryC",
+        "moduleName": "TruVideoRuntime",
+        "declAttributes": [
+          "AccessControl",
+          "RawDocComment"
+        ],
+        "hasMissingDesignatedInitializers": true,
+        "conformances": [
+          {
+            "kind": "Conformance",
+            "name": "Copyable",
+            "printedName": "Copyable",
+            "usr": "s:s8CopyableP",
+            "mangledName": "$ss8CopyableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Escapable",
+            "printedName": "Escapable",
+            "usr": "s:s9EscapableP",
+            "mangledName": "$ss9EscapableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Sendable",
+            "printedName": "Sendable",
+            "usr": "s:s8SendableP",
+            "mangledName": "$ss8SendableP"
+          }
+        ]
+      }
+    ],
+    "json_format_version": 8
+  },
+  "ConstValues": [
+    {
+      "filePath": "\/Users\/runner\/work\/truvideo-ios-sdk\/truvideo-ios-sdk\/Libraries\/Foundation\/Core\/Runtime\/Sources\/LibraryRegistry.swift",
+      "kind": "Array",
+      "offset": 2659,
+      "length": 2,
+      "value": "[]"
+    },
+    {
+      "filePath": "\/Users\/runner\/work\/truvideo-ios-sdk\/truvideo-ios-sdk\/Libraries\/Foundation\/Core\/Runtime\/Sources\/LibraryRegistry.swift",
+      "kind": "BooleanLiteral",
+      "offset": 2826,
+      "length": 5,
+      "value": "false"
+    }
+  ]
+}
