@@ -28,7 +28,6 @@ DerivedData
 *.ipa
 *.xcuserstate
 project.xcworkspace
-ios/xcframeworks/
 
 # Android/IJ
 #
