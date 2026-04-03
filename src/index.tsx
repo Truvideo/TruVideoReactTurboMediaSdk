@@ -187,20 +187,19 @@ export async function uploadStreamUploadRequest(params: {
 }
 
 export async function pauseStreamUploadRequest(id: string): Promise<void> {
-  await TruvideoReactTurboMediaSdk.pauseMedia(id);
+  await TruvideoReactTurboMediaSdk.pauseStreamUploadRequest(id);
 }
 
 export async function resumeStreamUploadRequest(id: string): Promise<void> {
-  await TruvideoReactTurboMediaSdk.resumeMedia(id);
+  await TruvideoReactTurboMediaSdk.resumeStreamUploadRequest(id);
 }
 
 export async function retryStreamUploadRequest(id: string): Promise<void> {
-  await TruvideoReactTurboMediaSdk.resumeMedia(id);
-  await TruvideoReactTurboMediaSdk.uploadMedia(id);
+  await TruvideoReactTurboMediaSdk.retryStreamUploadRequest(id);
 }
 
 export async function deleteStreamUploadRequest(id: string): Promise<void> {
-  await TruvideoReactTurboMediaSdk.deleteMedia(id);
+  await TruvideoReactTurboMediaSdk.deleteStreamUploadRequest(id);
 }
 
 // Define the signature for the callbacks MediaBuilder will expect

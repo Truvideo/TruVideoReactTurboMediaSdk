@@ -548,187 +548,347 @@ import React
       return jsonString
   }
 
-  // ────────────────────────────────────────────────────────────────────────────
-  // Stream Upload (multipart / chunked) - Stream Requests
-  // ────────────────────────────────────────────────────────────────────────────
+    // ────────────────────────────────────────────────────────────────────────────
+    // STREAM UPLOAD — based on actual TruvideoSdkMediaInterface
+    // ────────────────────────────────────────────────────────────────────────────
 
-  private func streamRequestToDictionary(_ req: TruvideoSdkMediaStreamRequest) -> [String: Any] {
-    let dateFormatter = ISO8601DateFormatter()
-
-    var partsArray: [[String: Any]] = []
-    for part in req.parts {
-      partsArray.append([
-        "index": part.index,
-        "createdAt": part.createdAt != nil ? dateFormatter.string(from: part.createdAt!) : "",
-        "updatedAt": part.updatedAt != nil ? dateFormatter.string(from: part.updatedAt!) : "",
-        "startedAt": part.startedAt != nil ? dateFormatter.string(from: part.startedAt!) : "",
-        "endedAt": part.endedAt != nil ? dateFormatter.string(from: part.endedAt!) : "",
-        "isCompleted": part.isCompleted,
-      ])
-    }
-
-    return [
-      "id": req.id,
-      "status": String(describing: req.status).uppercased(),
-      "type": String(describing: req.type).uppercased(),
-      "progress": req.progress,
-      "thumbnailPath": req.thumbnailPath,
-      "mediaId": req.mediaId ?? "",
-      "isStartOperationCompleted": req.isStartOperationCompleted,
-      "startOperationStartedAt": req.startOperationStartedAt != nil ? dateFormatter.string(from: req.startOperationStartedAt!) : "",
-      "startOperationEndedAt": req.startOperationEndedAt != nil ? dateFormatter.string(from: req.startOperationEndedAt!) : "",
-      "isCompleteOperationCompleted": req.isCompleteOperationCompleted,
-      "completeOperationStartedAt": req.completeOperationStartedAt != nil ? dateFormatter.string(from: req.completeOperationStartedAt!) : "",
-      "completeOperationEndedAt": req.completeOperationEndedAt != nil ? dateFormatter.string(from: req.completeOperationEndedAt!) : "",
-      "parts": partsArray,
-      "createdAt": req.createdAt != nil ? dateFormatter.string(from: req.createdAt!) : "",
-      "updatedAt": req.updatedAt != nil ? dateFormatter.string(from: req.updatedAt!) : "",
-      "startedAt": req.startedAt != nil ? dateFormatter.string(from: req.startedAt!) : "",
-      "endedAt": req.endedAt != nil ? dateFormatter.string(from: req.endedAt!) : "",
-    ]
-  }
-
-  @objc public func createStreamUploadRequest(filePath: String, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
-    guard let fileURL = URL(string: "file://\(filePath)") else {
-      reject("INVALID_URL", "The file URL is invalid", nil)
-      return
-    }
-    Task {
-      do {
-        let req = try await TruvideoSdkMedia().createUploadRequest(from: fileURL)
-        let json = try convertToJsonString(from: streamRequestToDictionary(req))
-        resolve(json)
-      } catch {
-        reject("STREAM_UPLOAD_ERROR", "Failed to create stream upload request", error)
-      }
-    }
-  }
-
-  @objc public func getAllStreamUploadRequests(resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
-    Task {
-      do {
-        let reqs = try await TruvideoSdkMedia().getAllUploadRequests()
-        let arr = try reqs.map { streamRequestToDictionary($0) }
-        let json = try convertToJsonString(from: ["items": arr]) // wrap to keep JSON valid for empty arrays in some bridges
-        // Return just array string for JS side compatibility
-        if let data = json.data(using: .utf8),
-           let obj = try JSONSerialization.jsonObject(with: data) as? [String: Any],
-           let items = obj["items"] {
-          let raw = try JSONSerialization.data(withJSONObject: items, options: [])
-          resolve(String(data: raw, encoding: .utf8) ?? "[]")
-        } else {
-          resolve("[]")
+    @objc public func createStreamUploadRequest(
+        _ filePath: String,
+        resolve: @escaping RCTPromiseResolveBlock,
+        reject: @escaping RCTPromiseRejectBlock
+    ) {
+        guard let fileURL = URL(string: "file://\(filePath)") else {
+            reject("INVALID_URL", "The file URL is invalid", nil)
+            return
         }
-      } catch {
-        reject("STREAM_UPLOAD_ERROR", "Failed to list stream upload requests", error)
-      }
-    }
-  }
-
-  @objc public func getStreamUploadRequestById(id: String, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
-    Task {
-      do {
-        let req = try await TruvideoSdkMedia().getUploadRequestById(id)
-        let json = try convertToJsonString(from: streamRequestToDictionary(req))
-        resolve(json)
-      } catch {
-        resolve("{}")
-      }
-    }
-  }
-
-  @objc public func uploadStreamUploadRequest(
-    id: String,
-    title: String,
-    tags: String,
-    metadata: String,
-    includeInReport: Bool,
-    isLibrary: Bool,
-    resolve: @escaping RCTPromiseResolveBlock,
-    reject: @escaping RCTPromiseRejectBlock
-  ) {
-    Task {
-      do {
-        let media = TruvideoSdkMedia()
-        let req = try await media.getUploadRequestById(id)
-
-        let tagsDict = (try? convertToDictionary(from: tags)) ?? [:]
-        var tagBuilder = TruvideoSdkMediaTags.builder()
-        for (k, v) in tagsDict {
-          tagBuilder = tagBuilder.set(k, "\(v)")
+        Task {
+            do {
+                let request = try await TruvideoSdkMedia.createUploadRequest(from: fileURL)
+                let dict = mapStreamRequestToDict(request)
+                let jsonData = try JSONSerialization.data(withJSONObject: dict)
+                resolve(String(data: jsonData, encoding: .utf8) ?? "{}")
+            } catch {
+                reject("CREATE_ERROR", error.localizedDescription, error)
+            }
         }
+    }
 
-        let metaDict = (try? convertToDictionary(from: metadata)) ?? [:]
-        var metaBuilder = TruvideoSdkMediaMetadata.builder()
-        for (k, v) in metaDict {
-          metaBuilder = metaBuilder.set(k, "\(v)")
+    @objc public func getAllStreamUploadRequests(
+        _ resolve: @escaping RCTPromiseResolveBlock,
+        reject: @escaping RCTPromiseRejectBlock
+    ) {
+        Task {
+            do {
+                let requests = try await TruvideoSdkMedia.getAllUploadRequests()
+                let list = requests.map { mapStreamRequestToDict($0) }
+                let jsonData = try JSONSerialization.data(withJSONObject: list)
+                resolve(String(data: jsonData, encoding: .utf8) ?? "[]")
+            } catch {
+                resolve("[]")
+            }
         }
-
-        try await req.upload(
-          title: title,
-          tags: tagBuilder.build(),
-          metadata: metaBuilder.build(),
-          includeInReport: includeInReport,
-          isLibrary: isLibrary
-        )
-
-        let json = try convertToJsonString(from: streamRequestToDictionary(req))
-        resolve(json)
-      } catch {
-        reject("STREAM_UPLOAD_ERROR", "Failed to start stream upload", error)
-      }
     }
-  }
 
-  @objc public func pauseStreamUploadRequest(id: String, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
-    Task {
-      do {
-        let req = try await TruvideoSdkMedia().getUploadRequestById(id)
-        try await req.pause()
-        resolve("OK")
-      } catch {
-        reject("STREAM_UPLOAD_ERROR", "Failed to pause stream upload", error)
-      }
+    @objc public func getStreamUploadRequestById(
+        _ id: String,
+        resolve: @escaping RCTPromiseResolveBlock,
+        reject: @escaping RCTPromiseRejectBlock
+    ) {
+        Task {
+            do {
+                let request = try await TruvideoSdkMedia.getUploadRequestById(id)
+                let dict = mapStreamRequestToDict(request)
+                if let jsonData = try? JSONSerialization.data(withJSONObject: dict),
+                   let jsonString = String(data: jsonData, encoding: .utf8) {
+                    resolve(jsonString)
+                } else {
+                    resolve("{}")
+                }
+            } catch {
+                resolve("{}")
+            }
+        }
     }
-  }
+    @objc public func uploadStreamUploadRequest(
+        _ id: String,
+        title: String,
+        tags: String,
+        metadata: String,
+        includeInReport: Bool,
+        isLibrary: Bool,
+        resolve: @escaping RCTPromiseResolveBlock,
+        reject: @escaping RCTPromiseRejectBlock
+    ) {
+        Task {
+            do {
+                let request = try await TruvideoSdkMedia.getUploadRequestById(id)
+                let status = normalizeStreamRequestStatus(request.status)
 
-  @objc public func resumeStreamUploadRequest(id: String, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
-    Task {
-      do {
-        let req = try await TruvideoSdkMedia().getUploadRequestById(id)
-        try await req.resume()
-        resolve("OK")
-      } catch {
-        reject("STREAM_UPLOAD_ERROR", "Failed to resume stream upload", error)
-      }
+                if ["PROCESSING", "PAUSED", "COMPLETED"].contains(status) {
+                    let dict = mapStreamRequestToDict(request)
+                    if let jsonData = try? JSONSerialization.data(withJSONObject: dict),
+                       let jsonString = String(data: jsonData, encoding: .utf8) {
+                        resolve(jsonString)
+                    } else {
+                        resolve("{}")
+                    }
+                    return
+                }
+
+                // Build tags from JSON string
+                let tagsDict = (try? convertToDictionary(from: tags)) ?? [:]
+                var tagsBuilder = TruvideoSdkMediaTags.builder()
+                for (key, value) in tagsDict {
+                    tagsBuilder = tagsBuilder.set(key, "\(value)")
+                }
+
+                // Build metadata from JSON string
+                let metadataDict = (try? convertToDictionary(from: metadata)) ?? [:]
+                let metadataBuilder = TruvideoSdkMediaMetadata.builder()
+                for (key, value) in metadataDict {
+                    _ = metadataBuilder.set(key, "\(value)")
+                }
+
+                // Use the Options struct — this is the correct iOS API
+                let options = TruvideoSdkMediaStreamRequest.Options(
+                    isIncludedInReport: includeInReport,
+                    isLibrary: isLibrary,
+                    metadata: metadataBuilder.build(),
+                    tags: tagsBuilder.build().dictionary,
+                    title: title
+                )
+
+                try request.upload(with: options)
+                let initialResponse = mapStreamRequestToDict(request)
+                if let jsonData = try? JSONSerialization.data(withJSONObject: initialResponse),
+                   let jsonString = String(data: jsonData, encoding: .utf8) {
+                    resolve(jsonString)
+                } else {
+                    resolve("{}")
+                }
+
+                let completeCancellable = request.completionHandler
+                    .receive(on: DispatchQueue.main)
+                    .sink(receiveCompletion: { completion in
+                        switch completion {
+                        case .finished:
+                            break
+                        case .failure(let error):
+                            self.sendEvent(withName: "onError", body: error.localizedDescription)
+                        }
+                    }, receiveValue: { remoteId in
+                        let responseDict: [String: Any] = [
+                            "id": id,
+                            "remoteId": remoteId,
+                            "status": "uploaded"
+                        ]
+                        if let jsonData = try? JSONSerialization.data(withJSONObject: responseDict),
+                           let jsonString = String(data: jsonData, encoding: .utf8) {
+                            self.sendEvent(withName: "onComplete", body: jsonString)
+                        }
+                    })
+                completeCancellable.store(in: &disposeBag)
+
+            } catch {
+                reject("STREAM_UPLOAD_ERROR", error.localizedDescription, error)
+            }
+        }
     }
-  }
 
-  @objc public func retryStreamUploadRequest(id: String, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
-    Task {
-      do {
-        let req = try await TruvideoSdkMedia().getUploadRequestById(id)
-        try await req.retry()
-        resolve("OK")
-      } catch {
-        reject("STREAM_UPLOAD_ERROR", "Failed to retry stream upload", error)
-      }
+    @objc public func pauseStreamUploadRequest(
+        _ id: String,
+        resolve: @escaping RCTPromiseResolveBlock,
+        reject: @escaping RCTPromiseRejectBlock
+    ) {
+        Task {
+            do {
+                let request = try await TruvideoSdkMedia.getUploadRequestById(id)
+                try await request.pause()
+                resolve("Stream paused")
+            } catch {
+                reject("STREAM_PAUSE_ERROR", error.localizedDescription, error)
+            }
+        }
     }
-  }
 
-  @objc public func deleteStreamUploadRequest(id: String, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
-    Task {
-      do {
-        let req = try await TruvideoSdkMedia().getUploadRequestById(id)
-        try await req.delete()
-        resolve("OK")
-      } catch {
-        reject("STREAM_UPLOAD_ERROR", "Failed to delete stream upload", error)
-      }
+    @objc public func resumeStreamUploadRequest(
+        _ id: String,
+        resolve: @escaping RCTPromiseResolveBlock,
+        reject: @escaping RCTPromiseRejectBlock
+    ) {
+        Task {
+            do {
+                let request = try await TruvideoSdkMedia.getUploadRequestById(id)
+                try await request.resume()
+                resolve("Stream resumed")
+            } catch {
+                reject("STREAM_RESUME_ERROR", error.localizedDescription, error)
+            }
+        }
     }
-  }
 
+    @objc public func retryStreamUploadRequest(
+        _ id: String,
+        resolve: @escaping RCTPromiseResolveBlock,
+        reject: @escaping RCTPromiseRejectBlock
+    ) {
+        Task {
+            do {
+                let request = try await TruvideoSdkMedia.getUploadRequestById(id)
+                try await request.retry()
+                resolve("Stream retried")
+            } catch {
+                reject("STREAM_RETRY_ERROR", error.localizedDescription, error)
+            }
+        }
+    }
 
+    @objc public func deleteStreamUploadRequest(
+        _ id: String,
+        resolve: @escaping RCTPromiseResolveBlock,
+        reject: @escaping RCTPromiseRejectBlock
+    ) {
+        Task {
+            do {
+                let request = try await TruvideoSdkMedia.getUploadRequestById(id)
+                try await request.delete()
+                resolve("Stream deleted")
+            } catch {
+                reject("STREAM_DELETE_ERROR", error.localizedDescription, error)
+            }
+        }
+    }
+
+    @objc public func searchById(
+        _ id: String,
+        resolve: @escaping RCTPromiseResolveBlock,
+        reject: @escaping RCTPromiseRejectBlock
+    ) {
+        Task {
+            do {
+                // getById is the correct method per swiftinterface
+                guard let media = try await TruvideoSdkMedia.getById(id) else {
+                    resolve("{}")
+                    return
+                }
+                let dateFormatter = ISO8601DateFormatter()
+                let tagJsonData = try JSONSerialization.data(withJSONObject: media.tags.dictionary)
+                let tagString = String(data: tagJsonData, encoding: .utf8) ?? "{}"
+
+                let metaJsonData = try JSONSerialization.data(withJSONObject: media.metadata.dictionary)
+                let metaString = String(data: metaJsonData, encoding: .utf8) ?? "{}"
+
+                let dict: [String: Any] = [
+                    "id": media.remoteId,
+                    "createdDate": dateFormatter.string(from: media.createdDate),
+                    "remoteId": media.remoteId,
+                    "uploadedFileURL": media.uploadedFileURL.absoluteString,
+                    "metaData": metaString,
+                    "tags": tagString,
+                    "transcriptionURL": media.transcriptionURL?.absoluteString ?? "",
+                    "transcriptionLength": "\(media.transcriptionLength)",
+                    "fileType": media.type.rawValue,
+                    "thumbnailUrl": media.thumbnailUrl?.absoluteString ?? "",
+                    "previewUrl": media.previewUrl?.absoluteString ?? ""
+                ]
+                let jsonData = try JSONSerialization.data(withJSONObject: dict)
+                resolve(String(data: jsonData, encoding: .utf8) ?? "{}")
+            } catch {
+                reject("SEARCH_BY_ID_ERROR", error.localizedDescription, error)
+            }
+        }
+    }
+
+    // ────────────────────────────────────────────────────────────────────────────
+    // Helper — maps TruvideoSdkMediaStreamRequest to Dict
+    // ────────────────────────────────────────────────────────────────────────────
+    private func normalizeStreamRequestStatus(_ status: TruvideoSdkMediaStreamRequest.Status) -> String {
+        switch status {
+        case .cancelled:
+            return "CANCELED"
+        case .error:
+            return "ERROR"
+        case .paused:
+            return "PAUSED"
+        case .pending:
+            return "IDLE"
+        case .processing:
+            return "PROCESSING"
+        case .uploaded:
+            return "COMPLETED"
+        }
+    }
+
+    private func mapStreamRequestToDict(_ request: TruvideoSdkMediaStreamRequest) -> [String: Any] {
+        let dateFormatter = ISO8601DateFormatter()
+        return [
+            "id": request.id.uuidString,
+            "status": normalizeStreamRequestStatus(request.status),
+            "type": request.fileType.rawValue,
+            "progress": 0,
+            "thumbnailPath": "",
+            "mediaId": request.remoteId ?? "",
+            "createdAt": dateFormatter.string(from: request.createdAt),
+            "updatedAt": dateFormatter.string(from: request.createdAt),
+            "filePath": request.fileUrl.absoluteString,
+            "fileUrl": request.fileUrl.absoluteString,
+            "isLibrary": request.isLibrary,
+            "includeInReport": request.isIncludedInReport,
+            "isIncludedInReport": request.isIncludedInReport,
+            "tags": request.tags.dictionary,
+            "metadata": request.metadata.dictionary,
+            "durationMilliseconds": request.durationMilliseconds ?? 0,
+            "parts": [],
+        ]
+    }
+    
+    // ────────────────────────────────────────────────────────────────────────────
+    // AsyncStream bridges — push live status updates to JS via events
+    // ────────────────────────────────────────────────────────────────────────────
+
+    // Holds running stream tasks so we can cancel them
+    private var streamAllTask: Task<Void, Never>? = nil
+    private var streamByIdTasks: [String: Task<Void, Never>] = [:]
+
+    @objc public func startStreamAllUploadRequests() {
+        streamAllTask?.cancel()
+        streamAllTask = Task {
+            let stream = TruvideoSdkMedia.streamAllUploadRequests()
+            for await requests in stream {
+                if Task.isCancelled { break }
+                let list = requests.map { mapStreamRequestToDict($0) }
+                if let jsonData = try? JSONSerialization.data(withJSONObject: list),
+                   let jsonString = String(data: jsonData, encoding: .utf8) {
+                    sendEvent(withName: "onStreamAllUploadRequests", body: jsonString)
+                }
+            }
+        }
+    }
+
+    @objc public func stopStreamAllUploadRequests() {
+        streamAllTask?.cancel()
+        streamAllTask = nil
+    }
+
+    @objc public func startStreamUploadRequestById(_ id: String) {
+        streamByIdTasks[id]?.cancel()
+        streamByIdTasks[id] = Task {
+            let stream = TruvideoSdkMedia.streamUploadRequestById(id)
+            for await request in stream {
+                if Task.isCancelled { break }
+                let dict = mapStreamRequestToDict(request)
+                if let jsonData = try? JSONSerialization.data(withJSONObject: dict),
+                   let jsonString = String(data: jsonData, encoding: .utf8) {
+                    sendEvent(withName: "onStreamUploadRequestById", body: jsonString)
+                }
+            }
+        }
+    }
+
+    @objc public func stopStreamUploadRequestById(_ id: String) {
+        streamByIdTasks[id]?.cancel()
+        streamByIdTasks[id] = nil
+    }
 //    private func convertToMetadata(from jsonString: String) throws -> Metadata {
 //        guard let jsonData = jsonString.data(using: .utf8) else {
 //            throw NSError(domain: "Invalid JSON string", code: 0, userInfo: nil)

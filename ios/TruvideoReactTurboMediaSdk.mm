@@ -28,13 +28,13 @@ RCT_EXPORT_MODULE()
 }
 
 
-- (void)getFileUploadRequestById:(nonnull NSString *)id resolve:(nonnull RCTPromiseResolveBlock)resolve reject:(nonnull RCTPromiseRejectBlock)reject { 
+- (void)getFileUploadRequestById:(nonnull NSString *)id resolve:(nonnull RCTPromiseResolveBlock)resolve reject:(nonnull RCTPromiseRejectBlock)reject {
   TruVideoReactMediaSdkClass *truvideo = [[TruVideoReactMediaSdkClass alloc] init];
   [truvideo getFileUploadRequestByIdWithId:id resolve:resolve reject:reject];
 }
 
 
-- (void)mediaBuilder:(nonnull NSString *)filePath tag:(nonnull NSString *)tag metaData:(nonnull NSString *)metaData resolve:(nonnull RCTPromiseResolveBlock)resolve reject:(nonnull RCTPromiseRejectBlock)reject { 
+- (void)mediaBuilder:(nonnull NSString *)filePath tag:(nonnull NSString *)tag metaData:(nonnull NSString *)metaData resolve:(nonnull RCTPromiseResolveBlock)resolve reject:(nonnull RCTPromiseRejectBlock)reject {
   TruVideoReactMediaSdkClass *truvideo = [[TruVideoReactMediaSdkClass alloc] init];
   [truvideo mediaBuilderWithFilePath:filePath tag:tag metaData:metaData resolve:resolve reject:reject];
 }
@@ -52,7 +52,7 @@ RCT_EXPORT_MODULE()
 }
 
 
-- (void)search:(nonnull NSString *)tag type:(nonnull NSString *)type page:(nonnull NSString *)page pageSize:(nonnull NSString *)pageSize resolve:(nonnull RCTPromiseResolveBlock)resolve reject:(nonnull RCTPromiseRejectBlock)reject { 
+- (void)search:(nonnull NSString *)tag type:(nonnull NSString *)type page:(nonnull NSString *)page pageSize:(nonnull NSString *)pageSize resolve:(nonnull RCTPromiseResolveBlock)resolve reject:(nonnull RCTPromiseRejectBlock)reject {
   TruVideoReactMediaSdkClass *truvideo = [[TruVideoReactMediaSdkClass alloc] init];
   [truvideo searchWithTag:tag type:type page:page pageSize:pageSize resolve:resolve reject:reject];
 }
@@ -63,6 +63,51 @@ RCT_EXPORT_MODULE()
   [truvideo uploadMediaWithId:id resolve:resolve reject:reject];
 }
 
+- (void)createStreamUploadRequest:(nonnull NSString *)filePath resolve:(nonnull RCTPromiseResolveBlock)resolve reject:(nonnull RCTPromiseRejectBlock)reject {
+  TruVideoReactMediaSdkClass *truvideo = [[TruVideoReactMediaSdkClass alloc] init];
+  [truvideo createStreamUploadRequest:filePath resolve:resolve reject:reject];
+}
+
+- (void)getAllStreamUploadRequests:(nonnull RCTPromiseResolveBlock)resolve reject:(nonnull RCTPromiseRejectBlock)reject {
+  TruVideoReactMediaSdkClass *truvideo = [[TruVideoReactMediaSdkClass alloc] init];
+  [truvideo getAllStreamUploadRequests:resolve reject:reject];
+}
+
+- (void)getStreamUploadRequestById:(nonnull NSString *)id resolve:(nonnull RCTPromiseResolveBlock)resolve reject:(nonnull RCTPromiseRejectBlock)reject {
+  TruVideoReactMediaSdkClass *truvideo = [[TruVideoReactMediaSdkClass alloc] init];
+  [truvideo getStreamUploadRequestById:id resolve:resolve reject:reject];
+}
+
+- (void)uploadStreamUploadRequest:(nonnull NSString *)id title:(nonnull NSString *)title tags:(nonnull NSString *)tags metadata:(nonnull NSString *)metadata includeInReport:(BOOL)includeInReport isLibrary:(BOOL)isLibrary resolve:(nonnull RCTPromiseResolveBlock)resolve reject:(nonnull RCTPromiseRejectBlock)reject {
+  TruVideoReactMediaSdkClass *truvideo = [[TruVideoReactMediaSdkClass alloc] init];
+  [truvideo uploadStreamUploadRequest:id title:title tags:tags metadata:metadata includeInReport:includeInReport isLibrary:isLibrary resolve:resolve reject:reject];
+}
+
+- (void)pauseStreamUploadRequest:(nonnull NSString *)id resolve:(nonnull RCTPromiseResolveBlock)resolve reject:(nonnull RCTPromiseRejectBlock)reject {
+  TruVideoReactMediaSdkClass *truvideo = [[TruVideoReactMediaSdkClass alloc] init];
+  [truvideo pauseStreamUploadRequest:id resolve:resolve reject:reject];
+}
+
+- (void)resumeStreamUploadRequest:(nonnull NSString *)id resolve:(nonnull RCTPromiseResolveBlock)resolve reject:(nonnull RCTPromiseRejectBlock)reject {
+  TruVideoReactMediaSdkClass *truvideo = [[TruVideoReactMediaSdkClass alloc] init];
+  [truvideo resumeStreamUploadRequest:id resolve:resolve reject:reject];
+}
+
+- (void)retryStreamUploadRequest:(nonnull NSString *)id resolve:(nonnull RCTPromiseResolveBlock)resolve reject:(nonnull RCTPromiseRejectBlock)reject {
+  TruVideoReactMediaSdkClass *truvideo = [[TruVideoReactMediaSdkClass alloc] init];
+  [truvideo retryStreamUploadRequest:id resolve:resolve reject:reject];
+}
+
+- (void)deleteStreamUploadRequest:(nonnull NSString *)id resolve:(nonnull RCTPromiseResolveBlock)resolve reject:(nonnull RCTPromiseRejectBlock)reject {
+  TruVideoReactMediaSdkClass *truvideo = [[TruVideoReactMediaSdkClass alloc] init];
+  [truvideo deleteStreamUploadRequest:id resolve:resolve reject:reject];
+}
+
+- (void)searchById:(nonnull NSString *)id resolve:(nonnull RCTPromiseResolveBlock)resolve reject:(nonnull RCTPromiseRejectBlock)reject {
+  TruVideoReactMediaSdkClass *truvideo = [[TruVideoReactMediaSdkClass alloc] init];
+  [truvideo searchById:id resolve:resolve reject:reject];
+}
+
 
 - (std::shared_ptr<facebook::react::TurboModule>)getTurboModule:
     (const facebook::react::ObjCTurboModule::InitParams &)params
@@ -71,3 +116,4 @@ RCT_EXPORT_MODULE()
 }
 
 @end
+
