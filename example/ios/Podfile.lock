@@ -1500,6 +1500,27 @@ PODS:
     - React-perflogger (= 0.77.0)
     - React-utils (= 0.77.0)
   - SocketRocket (0.7.1)
+  - truvideo-react-turbo-core-sdk (2.1.1):
+    - DoubleConversion
+    - glog
+    - hermes-engine
+    - RCT-Folly (= 2024.11.18.00)
+    - RCTRequired
+    - RCTTypeSafety
+    - React-Core
+    - React-debug
+    - React-Fabric
+    - React-featureflags
+    - React-graphics
+    - React-ImageManager
+    - React-NativeModulesApple
+    - React-RCTFabric
+    - React-rendererdebug
+    - React-utils
+    - ReactCodegen
+    - ReactCommon/turbomodule/bridging
+    - ReactCommon/turbomodule/core
+    - Yoga
   - truvideo-react-turbo-media-sdk (2.1.1):
     - DoubleConversion
     - glog
@@ -1520,6 +1541,7 @@ PODS:
     - ReactCodegen
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
+    - truvideo-react-turbo-core-sdk
     - Yoga
   - Yoga (0.0.0)
 
@@ -1591,6 +1613,7 @@ DEPENDENCIES:
   - ReactAppDependencyProvider (from `build/generated/ios`)
   - ReactCodegen (from `build/generated/ios`)
   - ReactCommon/turbomodule/core (from `../node_modules/react-native/ReactCommon`)
+  - truvideo-react-turbo-core-sdk (from `/Users/bhaveshpathe/CloneReactNativeTurbo/TruVideoReactTurboCoreSdk`)
   - truvideo-react-turbo-media-sdk (from `../..`)
   - Yoga (from `../node_modules/react-native/ReactCommon/yoga`)
 
@@ -1730,6 +1753,8 @@ EXTERNAL SOURCES:
     :path: build/generated/ios
   ReactCommon:
     :path: "../node_modules/react-native/ReactCommon"
+  truvideo-react-turbo-core-sdk:
+    :path: "/Users/bhaveshpathe/CloneReactNativeTurbo/TruVideoReactTurboCoreSdk"
   truvideo-react-turbo-media-sdk:
     :path: "../.."
   Yoga:
@@ -1802,9 +1827,10 @@ SPEC CHECKSUMS:
   ReactCodegen: c08a5113d9c9c895fe10f3c296f74c6b705a60a9
   ReactCommon: 1bd2dc684d7992acbf0dfee887b89a57a1ead86d
   SocketRocket: d4aabe649be1e368d1318fdf28a022d714d65748
-  truvideo-react-turbo-media-sdk: 0228cbd867037e13a5f67dc27eaf41eca3f02a46
+  truvideo-react-turbo-core-sdk: c7c3856e50d778906d8023ac61e8bc0111d3d393
+  truvideo-react-turbo-media-sdk: 3cca3e64f0d7c5e96f8d0a39d1058da489fbdfa0
   Yoga: 78d74e245ed67bb94275a1316cdc170b9b7fe884
 
-PODFILE CHECKSUM: 0789fb8f8636201acdcafa1167cfbda2f36b56c6
+PODFILE CHECKSUM: f3cc3396753bdc0088ad10140349a6e20dc3fbea
 
 COCOAPODS: 1.16.2

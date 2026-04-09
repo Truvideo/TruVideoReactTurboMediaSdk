@@ -10,6 +10,8 @@ require Pod::Executable.execute_command('node', ['-p',
 platform :ios, min_ios_version_supported
 prepare_react_native_project!
 
+core_sdk_path = File.expand_path('../../../TruVideoReactTurboCoreSdk', __dir__)
+
 linkage = ENV['USE_FRAMEWORKS']
 if linkage != nil
   Pod::UI.puts "Configuring Pod with #{linkage}ally linked Frameworks".green
@@ -18,6 +20,10 @@ end
 
 target 'TruvideoReactTurboMediaSdkExample' do
   config = use_native_modules!
+
+  if File.exist?(File.join(core_sdk_path, 'truvideo-react-turbo-core-sdk.podspec'))
+    pod 'truvideo-react-turbo-core-sdk', :path => core_sdk_path
+  end
 
   use_react_native!(
     :path => config[:reactNativePath],
@@ -38,5 +44,19 @@ target 'TruvideoReactTurboMediaSdkExample' do
       :mac_catalyst_enabled => false,
       # :ccache_enabled => true
     )
+
+    installer.pods_project.targets.each do |target|
+      next unless target.name == 'fmt'
+
+      target.build_configurations.each do |build_configuration|
+        build_configuration.build_settings['CLANG_CXX_LANGUAGE_STANDARD'] = 'c++17'
+        definitions = build_configuration.build_settings['GCC_PREPROCESSOR_DEFINITIONS'] || ['$(inherited)']
+        definitions = [definitions] unless definitions.is_a?(Array)
+        unless definitions.include?('FMT_USE_CONSTEVAL=0')
+          definitions << 'FMT_USE_CONSTEVAL=0'
+        end
+        build_configuration.build_settings['GCC_PREPROCESSOR_DEFINITIONS'] = definitions
+      end
+    end
   end
 end
