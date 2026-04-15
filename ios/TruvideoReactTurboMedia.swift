@@ -359,14 +359,15 @@ import React
     for (key, value) in tagDict! {
       var set = tagBuild.set(key, "\(value)")
     }
+    let normalizedType = type.uppercased()
     var typeData : TruvideoSdkMediaType?
-    if(type == "Image"){
+    if(normalizedType == "IMAGE"){
       typeData = .image
-    }else if(type == "Video"){
+    }else if(normalizedType == "VIDEO"){
       typeData = .video
-    }else if(type == "Audio"){
+    }else if(normalizedType == "AUDIO"){
       typeData = .audio
-    }else if(type == "PDF"){
+    }else if(normalizedType == "PDF"){
       typeData = .document
     }else{
       typeData = nil
@@ -375,9 +376,22 @@ import React
       let request = try? await TruvideoSdkMedia.search(type: typeData, tags: tagBuild.build(), pageNumber: Int(page) ?? 0, size: Int(pageSize) ?? 0)
       var mediaList: [TruvideoSDKMedia]? = request?.content
       if(mediaList == nil){
-        resolve("[]")
+        let responseObject: [String: Any] = [
+          "data": [],
+          "last": true,
+          "totalElements": 0,
+          "totalPages": 0,
+          "number": 0,
+          "size": Int(pageSize) ?? 0
+        ]
+        if let jsonData = try? JSONSerialization.data(withJSONObject: responseObject, options: []),
+           let jsonString = String(data: jsonData, encoding: .utf8) {
+          resolve(jsonString)
+        } else {
+          resolve("{\"data\":[],\"totalElements\":0,\"totalPages\":0,\"number\":0,\"size\":0}")
+        }
       }else{
-        var list = [String]()
+        var list = [[String: Any]]()
         let dateFormatter = ISO8601DateFormatter()
 //        let dateFormatter = DateFormatter()
 //        dateFormatter.dateFormat = "EEE MMM dd HH:mm:ss 'GMT'Z yyyy"
@@ -399,13 +413,18 @@ import React
               "thumbnailUrl": media.thumbnailUrl?.absoluteString ?? "",
               "previewUrl" : media.previewUrl?.absoluteString ?? ""
             ]
-            let jsonData = try JSONSerialization.data(withJSONObject: mediaDict, options: [])
-            if let jsonString = String(data: jsonData, encoding: .utf8) {
-              list.append(jsonString)
-            }
+            list.append(mediaDict)
           }
         }
-        let jsonData = try JSONSerialization.data(withJSONObject: list, options: [])
+        let responseObject: [String: Any] = [
+          "data": list,
+          "last": request?.last ?? true,
+          "totalElements": request?.totalElements ?? list.count,
+          "totalPages": request?.totalPages ?? (list.isEmpty ? 0 : 1),
+          "number": request?.number ?? 0,
+          "size": request?.size ?? list.count
+        ]
+        let jsonData = try JSONSerialization.data(withJSONObject: responseObject, options: [])
         if let jsonString = String(data: jsonData, encoding: .utf8) {
           resolve(jsonString)
         }else{
