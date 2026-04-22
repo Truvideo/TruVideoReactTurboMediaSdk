@@ -753,12 +753,12 @@
       },
       {
         "kind": "Import",
-        "name": "TruVideoRuntime",
-        "printedName": "TruVideoRuntime",
+        "name": "Registry",
+        "printedName": "Registry",
         "declKind": "Import",
         "moduleName": "TruvideoSdkMedia",
         "declAttributes": [
-          "SPIAccessControl"
+          "AccessControl"
         ]
       },
       {
@@ -9099,7 +9099,7 @@
     {
       "filePath": "\/Users\/runner\/work\/truvideo-ios-sdk\/truvideo-ios-sdk\/Libraries\/Plugins\/External\/Media\/Sources\/Legacy\/Uploads\/S3Uploader\/AWSS3CredentialsProvider.swift",
       "kind": "StringLiteral",
-      "offset": 1257,
+      "offset": 1263,
       "length": 30,
       "value": "\"truvideo-sdk-common-settings\""
     },
@@ -9486,7 +9486,7 @@
       "kind": "StringLiteral",
       "offset": 119,
       "length": 8,
-      "value": "\"79.0.0\""
+      "value": "\"79.0.1\""
     },
     {
       "filePath": "\/Users\/runner\/work\/truvideo-ios-sdk\/truvideo-ios-sdk\/Libraries\/Plugins\/External\/Media\/Sources\/Version.swift",
