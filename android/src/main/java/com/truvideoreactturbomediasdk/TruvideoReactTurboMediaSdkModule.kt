@@ -21,11 +21,11 @@ import kotlinx.coroutines.withContext
 import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
-import truvideo.sdk.common.exceptions.TruvideoSdkException
 import java.io.File
 import java.time.format.DateTimeFormatter
 import com.truvideo.sdk.media.model.external.TruvideoSdkMediaModel
 import com.truvideo.sdk.media.model.external.TruvideoSdkMediaResponse
+import com.truvideo.sdk.model.exceptions.TruvideoSdkException
 
 @ReactModule(name = TruvideoReactTurboMediaSdkModule.NAME)
 class TruvideoReactTurboMediaSdkModule(reactContext: ReactApplicationContext) :
