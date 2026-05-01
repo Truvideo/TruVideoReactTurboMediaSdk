@@ -1,8 +1,8 @@
 buildscript {
   // Buildscript is evaluated before everything else so we can't use getExtOrDefault
-  // Hardcode to 2.2.0 to match truvideo-sdk-android-media dependency
-  // This is required because autolinked modules may not have access to rootProject.ext at buildscript evaluation time
-  def kotlin_version = "2.2.0"
+  // Match React Native’s Kotlin Gradle plugin (see @react-native/gradle-plugin). TruVideo SDKs ship
+  // Kotlin 2.3 metadata; use -Xskip-metadata-version-check on compile tasks in consuming projects.
+  def kotlin_version = "2.0.21"
 
   repositories {
     google()
@@ -10,7 +10,7 @@ buildscript {
   }
 
   dependencies {
-    classpath "com.android.tools.build:gradle:7.2.1"
+    classpath "com.android.tools.build:gradle:8.9.1"
     // noinspection DifferentKotlinGradleVersion
     classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
   }
@@ -92,8 +92,9 @@ android {
   tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
     kotlinOptions {
       jvmTarget = "17"
-      languageVersion = "2.2"
-      apiVersion = "2.2"
+      languageVersion = "2.0"
+      apiVersion = "2.0"
+      freeCompilerArgs += "-Xskip-metadata-version-check"
     }
   }
 

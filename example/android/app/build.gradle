@@ -94,6 +94,8 @@ android {
         // Ensure all Kodein DI classes are included, especially JAR files
         resources {
             pickFirsts += ['**/libc++_shared.so', '**/libjsc.so']
+            // bcprov-jdk18on and jspecify both ship META-INF/versions/*/OSGI-INF/MANIFEST.MF
+            pickFirsts += ['META-INF/versions/**/OSGI-INF/MANIFEST.MF']
             excludes += ['META-INF/DEPENDENCIES', 'META-INF/LICENSE', 'META-INF/LICENSE.txt', 'META-INF/NOTICE', 'META-INF/NOTICE.txt']
         }
         // Ensure JAR files from dependencies are merged
@@ -134,8 +136,9 @@ android {
     tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
         kotlinOptions {
             jvmTarget = "17"
-            languageVersion = "2.2"
-            apiVersion = "2.2"
+            languageVersion = "2.0"
+            apiVersion = "2.0"
+            freeCompilerArgs += "-Xskip-metadata-version-check"
         }
     }
 }

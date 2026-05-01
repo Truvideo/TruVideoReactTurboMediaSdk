@@ -1,20 +1,21 @@
 buildscript {
     ext {
-        buildToolsVersion = "35.0.0"
+        buildToolsVersion = "36.0.0"
         minSdkVersion = 24
-        compileSdkVersion = 35
+        compileSdkVersion = 36
         targetSdkVersion = 34
         ndkVersion = "27.1.12297006"
-        kotlinVersion = "2.2.0"
+        // Must match @react-native/gradle-plugin/gradle/libs.versions.toml (KGP 2.3+ breaks RN’s plugin API).
+        kotlinVersion = "2.0.21"
     }
     repositories {
         google()
         mavenCentral()
     }
     dependencies {
-        classpath("com.android.tools.build:gradle")
+        classpath("com.android.tools.build:gradle:8.9.1")
         classpath("com.facebook.react:react-native-gradle-plugin")
-        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin")
+        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion")
     }
 }
 
