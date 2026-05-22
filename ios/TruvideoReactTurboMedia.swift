@@ -397,24 +397,20 @@ import React
 //        dateFormatter.dateFormat = "EEE MMM dd HH:mm:ss 'GMT'Z yyyy"
 //        dateFormatter.locale = Locale(identifier: "en_US_POSIX")
         for media in mediaList! {
-          let tagJsonData = try JSONSerialization.data(withJSONObject: media.tags.dictionary, options: [])
-          if let tagJsonString = String(data: tagJsonData, encoding: .utf8) {
-          
-            let mediaDict: [String: Any] = [
-              "id": media.remoteId,
-              "createdDate":dateFormatter.string(from: media.createdDate),
-              "remoteId": media.remoteId,
-              "uploadedFileURL": media.uploadedFileURL.absoluteString,
-              "metaData": media.metadata.dictionary,  // must return [String: Any]
-              "tags": media.tags.dictionary,          // must return [String: Any]
-              "transcriptionURL": media.transcriptionURL?.absoluteString ?? "",
-              "transcriptionLength": "\(media.transcriptionLength)",
-              "fileType": media.type.rawValue,
-              "thumbnailUrl": media.thumbnailUrl?.absoluteString ?? "",
-              "previewUrl" : media.previewUrl?.absoluteString ?? ""
-            ]
-            list.append(mediaDict)
-          }
+          let mediaDict: [String: Any] = [
+            "id": media.remoteId,
+            "createdDate": dateFormatter.string(from: media.createdDate),
+            "remoteId": media.remoteId,
+            "uploadedFileURL": media.uploadedFileURL.absoluteString,
+            "metaData": media.metadata.dictionary,
+            "tags": media.tags.dictionary,
+            "transcriptionURL": media.transcriptionURL?.absoluteString ?? "",
+            "transcriptionLength": "\(media.transcriptionLength)",
+            "fileType": media.type.rawValue,
+            "thumbnailUrl": media.thumbnailUrl?.absoluteString ?? "",
+            "previewUrl": media.previewUrl?.absoluteString ?? ""
+          ]
+          list.append(mediaDict)
         }
         let responseObject: [String: Any] = [
           "data": list,
